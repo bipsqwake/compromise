@@ -9,5 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Player {
     private String id;
+    private String session;
     private String name;
 }

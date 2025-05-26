@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebSocket STOMP Подключение</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2.0.6/css/pico.min.css">
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #f3f4f6;
+    }
+    main {
+      width: 100%;
+      max-width: 480px;
+    }
+    #messages {
+      margin-top: 2rem;
+      max-height: 300px;
+      overflow-y: auto;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #eee;
+      font-size: 0.97em;
+    }
+    .topic {
+      font-size: 0.95em;
+      color: #888;
+    }
+    #sendForm {
+      margin-top: 2rem;
+    }
+    pre {
+      background: #f6f8fa;
+      border-radius: 4px;
+      padding: 0.5em;
+      overflow-x: auto;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h2>Подключение к комнате</h2>
+    <form id="connectForm">
+      <label for="name">Ваше имя</label>
+      <input type="text" id="name" name="name" required placeholder="Введите имя">
+      <label for="roomId">ID комнаты</label>
+      <input type="text" id="roomId" name="roomId" required placeholder="Введите ID комнаты">
+      <button type="submit">Подключиться</button>
+    </form>
+    <section id="status" style="display:none;">
+      <article>
+        <header>
+          <strong>Статус:</strong> <span id="connectionStatus">Отключено</span>
+        </header>
+        <form id="sendForm" style="display:none;">
+          <label for="destination">Destination (куда отправить)</label>
+          <input type="text" id="destination" name="destination" required placeholder="/server/room/...">
+          <label for="msgBody">Тело сообщения (JSON или текст)</label>
+          <textarea id="msgBody" name="msgBody" rows="3" required placeholder='{"key": "value"}'></textarea>
+          <button type="submit">Отправить сообщение</button>
+        </form>
+        <div id="messages"></div>
+      </article>
+    </section>
+  </main>
+  <script type="module">
+    import { Client } from 'https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/+esm';
+
+    const connectForm = document.getElementById('connectForm');
+    const statusSection = document.getElementById('status');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const messagesDiv = document.getElementById('messages');
+    const sendForm = document.getElementById('sendForm');
+    const destinationInput = document.getElementById('destination');
+    const msgBodyInput = document.getElementById('msgBody');
+
+    let stompClient = null;
+    let userName = '';
+    let roomId = '';
+    const subscribeTopics = [
+      '/topic/room/${roomId}/players'
+    ];
+
+    function showMessage(topic, message, isOutgoing = false) {
+      const msg = document.createElement('div');
+      msg.innerHTML = `<span class="topic">${isOutgoing ? '→ ' : ''}${topic}</span>: <pre>${typeof message === 'string' ? message : JSON.stringify(message, null, 2)}</pre>`;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    connectForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      userName = document.getElementById('name').value.trim();
+      roomId = document.getElementById('roomId').value.trim();
+
+      if (!userName || !roomId) {
+        alert('Пожалуйста, введите имя и ID комнаты!');
+        return;
+      }
+
+      stompClient = new Client({
+        brokerURL: 'ws://localhost:8080/compromise',
+        reconnectDelay: 5000,
+        onConnect: (frame) => {
+          connectionStatus.textContent = 'Подключено';
+          showMessage('Система', 'Успешное подключение!');
+
+          // Подписка на топики
+          subscribeTopics.forEach(topic => {
+            stompClient.subscribe(topic.replace("${roomId}", roomId), (msg) => {
+              let body = msg.body;
+              try {
+                body = JSON.parse(msg.body);
+              } catch {}
+              showMessage(topic, body);
+            });
+          });
+
+          // Отправка hello сообщения
+          const destination = `/server/room/${roomId}/hello`;
+          const payload = { name: userName };
+          stompClient.publish({
+            destination: destination,
+            body: JSON.stringify(payload)
+          });
+          showMessage(destination, payload, true);
+
+          // Показываем форму отправки сообщений
+          sendForm.style.display = '';
+        },
+        onStompError: (frame) => {
+          connectionStatus.textContent = 'Ошибка STOMP';
+          showMessage('Ошибка', frame.headers['message'] || 'STOMP ошибка');
+        },
+        onWebSocketError: (event) => {
+          connectionStatus.textContent = 'Ошибка WebSocket';
+          showMessage('Ошибка', 'WebSocket ошибка: ' + (event.reason || 'Неизвестно'));
+        },
+        onDisconnect: () => {
+          connectionStatus.textContent = 'Отключено';
+          showMessage('Система', 'Отключение от сервера');
+        }
+      });
+
+      stompClient.activate();
+      connectForm.style.display = 'none';
+      statusSection.style.display = '';
+      connectionStatus.textContent = 'Подключение...';
+    });
+
+    // Отправка произвольных сообщений через форму
+    sendForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const destination = destinationInput.value.trim();
+      let body = msgBodyInput.value.trim();
+      if (!destination || !body) {
+        alert('Укажите destination и тело сообщения!');
+        return;
+      }
+      // Попробуем парсить как JSON, если не получится - отправим строкой
+      let toSend = body;
+      try {
+        toSend = JSON.stringify(JSON.parse(body));
+      } catch {
+        // Оставим как есть (текст)
+      }
+      stompClient.publish({
+        destination: destination,
+        body: toSend
+      });
+      showMessage(destination, body, true);
+      msgBodyInput.value = '';
+    });
+  </script>
+</body>
+</html>

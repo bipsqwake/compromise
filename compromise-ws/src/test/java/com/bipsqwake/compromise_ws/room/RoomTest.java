@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,9 +28,9 @@ public class RoomTest {
         PlayerMock player2 = new PlayerMock("player2", "6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc90");
         PlayerMock player3 = new PlayerMock("player3", "6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc90");
 
-        player1.setId(room.addPlayer(player1.getName()));
-        player2.setId(room.addPlayer(player2.getName()));
-        player3.setId(room.addPlayer(player3.getName()));
+        player1.setId(room.addPlayer(player1.getName(), UUID.randomUUID().toString()));
+        player2.setId(room.addPlayer(player2.getName(), UUID.randomUUID().toString()));
+        player3.setId(room.addPlayer(player3.getName(), UUID.randomUUID().toString()));
 
         List<PlayerMock> playerMocks = Arrays.asList(player1, player2, player3);
 

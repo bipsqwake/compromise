@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 import com.bipsqwake.compromise_ws.room.exception.RoomException;
 
@@ -52,7 +53,7 @@ public class Room {
 
     // player adders/removers
 
-    public String addPlayer(String name) throws RoomException {
+    public String addPlayer(String name, String session) throws RoomException {
         if (state != GameState.PREPARE) {
             log.error("Failed to add player $s: invalid game state", name);
             throw new RoomException("Game should be in PREPARE state to add player");
@@ -62,7 +63,7 @@ public class Room {
             throw new RoomException("Already have max players");
         }
         String playerId = UUID.randomUUID().toString();
-        players.put(playerId, new Player(playerId, name));
+        players.put(playerId, new Player(playerId, session, name));
         log.info("Added player {} with id {}", name, playerId);
         return playerId;
     }
@@ -74,6 +75,14 @@ public class Room {
 
     public Set<String> getPlayerIds() {
         return players.keySet();
+    }
+
+    public List<String> getPlayerNames() {
+        return players.values().stream().map(Player::getName).collect(Collectors.toList());
+    }
+
+    public Player getPlayer(String id) {
+        return players.get(id);
     }
 
     // game methods
