@@ -1,0 +1,6 @@
+name: compromise-ws
+logging:
+  level:
+    root: DEBUG
+appconfig:
+  allowed-origins-pattern: "*"
