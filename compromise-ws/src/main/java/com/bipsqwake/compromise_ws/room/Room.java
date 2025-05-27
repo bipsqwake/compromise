@@ -81,6 +81,10 @@ public class Room {
         return players.values().stream().map(Player::getName).collect(Collectors.toList());
     }
 
+    public List<String> getPlayerSessions() {
+        return players.values().stream().map(Player::getSession).collect(Collectors.toList());
+    }
+
     public Player getPlayer(String id) {
         return players.get(id);
     }

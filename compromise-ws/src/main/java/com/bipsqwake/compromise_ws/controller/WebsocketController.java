@@ -10,6 +10,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
+import com.bipsqwake.compromise_ws.exception.InvalidInputException;
+import com.bipsqwake.compromise_ws.message.DecisionMessage;
 import com.bipsqwake.compromise_ws.message.HelloMessage;
 import com.bipsqwake.compromise_ws.room.exception.RoomException;
 import com.bipsqwake.compromise_ws.service.RoomService;
@@ -37,12 +39,28 @@ public class WebsocketController {
             header.getSessionAttributes().put(PLAYER_ID_SESSION_ATTR, playerId);
         } else {
             log.warn("Session attributes for session {} is null", header.getSessionId());
+            return;
         }
     }
 
     @MessageMapping("/room/{roomId}/start")
     public void start(@DestinationVariable("roomId") String roomId, SimpMessageHeaderAccessor header) throws RoomException {
         roomService.startRoom(roomId);
+    }
+
+    @MessageMapping("/room/{roomId}/decision")
+    public void decision(@DestinationVariable("roomId") String roomId, 
+                        @Payload DecisionMessage message,
+                        SimpMessageHeaderAccessor header) throws RoomException, InvalidInputException {
+        if (header.getSessionAttributes() == null) {
+            log.warn("No session attributes in session {}", header.getSessionId());
+            return;
+        }
+        if (message.cardId() == null || message.decision() == null) {
+            throw new InvalidInputException("Invalid decision message");
+        }
+        String playerId = (String) header.getSessionAttributes().get(PLAYER_ID_SESSION_ATTR);
+        roomService.processDecision(roomId, playerId, message.cardId(), message.decision());
     }
 
     @MessageExceptionHandler

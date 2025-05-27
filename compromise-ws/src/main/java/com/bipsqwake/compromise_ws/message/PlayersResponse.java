@@ -10,11 +10,11 @@ import lombok.AllArgsConstructor;
 public class PlayersResponse {
 
     @JsonProperty
-    Action action;
+    private Action action;
     @JsonProperty
-    String name;
+    private String name;
     @JsonProperty
-    List<String> playerNames;
+    private List<String> playerNames;
 
     public enum Action {
         CONNECTED,

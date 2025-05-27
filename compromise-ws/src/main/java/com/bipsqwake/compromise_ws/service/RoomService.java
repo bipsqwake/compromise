@@ -11,9 +11,11 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
+import com.bipsqwake.compromise_ws.message.FinishMessage;
 import com.bipsqwake.compromise_ws.message.PlayersResponse;
 import com.bipsqwake.compromise_ws.message.PlayersResponse.Action;
 import com.bipsqwake.compromise_ws.room.Card;
+import com.bipsqwake.compromise_ws.room.Decision;
 import com.bipsqwake.compromise_ws.room.GameState;
 import com.bipsqwake.compromise_ws.room.Room;
 import com.bipsqwake.compromise_ws.room.exception.RoomException;
@@ -25,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RoomService {
 
     private static final String PLAYERS_DESTINATION = "/topic/room/%s/players";
+    private static final String STATUS_DESTINATION = "/topic/room/%s/status";
     private static final String CARDS_DESTINATION = "/queue/cards";
 
     @Autowired
@@ -81,12 +84,54 @@ public class RoomService {
             }
             Map<String, List<Card>> startCards = room.start();
             for (String playerSession : startCards.keySet()) {
-                for (Card card: startCards.get(playerSession)) {
+                for (Card card : startCards.get(playerSession)) {
                     log.info("Sending card {} to session {}", card.id(), playerSession);
-                    messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, card, createHeaders(playerSession));
+                    messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, card,
+                            createHeaders(playerSession));
                 }
             }
         }
+    }
+
+    public void processDecision(String roomId, String playerId, String cardId, Decision decision) throws RoomException {
+        if (roomId == null) {
+            throw new RoomException("Invalid room id format");
+        }
+        Room room = rooms.get(roomId);
+        if (room == null) {
+            throw new RoomException(String.format("No room with id %s", roomId));
+        }
+        if (room.getState() != GameState.IN_PROGRESS) {
+            return;
+        }
+        synchronized (room) {
+            if (room.getState() != GameState.IN_PROGRESS) {
+                return;
+            }
+            room.processDecision(cardId, playerId, decision);
+            boolean finished = room.finishCheck();
+            if (!finished) {
+                Card nextCard = room.getNextCardForPlayer(playerId);
+                String playerSession = room.getPlayer(playerId).getSession();
+                log.info("Sending card {} to session {}", nextCard.id(), playerSession);
+                messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, nextCard,
+                        createHeaders(playerSession));
+            } else {
+                processFinish(room);
+            }
+        }
+    }
+
+    private void processFinish(Room room) throws RoomException {
+        if (room == null) {
+            return;
+        }
+        Card selectedCard = room.getSelectedCard();
+        if (selectedCard == null) {
+            throw new RoomException(String.format("No selected card in room", room.getId()));
+        }
+        FinishMessage finishMessage = new FinishMessage(selectedCard);
+        messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), finishMessage);
     }
 
     private MessageHeaders createHeaders(String sessionId) {
