@@ -27,9 +27,6 @@ public class WebsocketController {
     @Autowired
     RoomService roomService;
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate;
-
     @MessageMapping("/room/{roomId}/hello")
     public void hello(@DestinationVariable("roomId") String roomId,
             @Payload HelloMessage message,
