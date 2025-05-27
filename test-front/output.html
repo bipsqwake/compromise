@@ -85,7 +85,8 @@
     let userName = '';
     let roomId = '';
     const subscribeTopics = [
-      '/topic/room/${roomId}/players'
+      '/topic/room/${roomId}/players',
+      '/user/queue/cards',
     ];
 
     function showMessage(topic, message, isOutgoing = false) {
@@ -121,6 +122,7 @@
               } catch {}
               showMessage(topic, body);
             });
+            console.log("Sub " + topic)
           });
 
           // Отправка hello сообщения

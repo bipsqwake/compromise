@@ -99,7 +99,7 @@ public class Room {
             if (cards == null) {
                 throw new RoomException("Initial null draw. Can't start game");
             }
-            result.put(playerId, cards);
+            result.put(players.get(playerId).getSession(), cards);
         }
         log.info("Game {} started; Initial cards: {}", id, result);
         return result;
@@ -149,7 +149,7 @@ public class Room {
 
     public Card getNextCardForPlayer(String playerId) throws RoomException {
         if (!isPlayerPresent(playerId)) {
-            throw new RoomException(String.format("Player %s not requested in game", playerId));
+            throw new RoomException(String.format("Player %s is not present in game", playerId));
         }
         List<Card> deck;
         synchronized (decisions) {

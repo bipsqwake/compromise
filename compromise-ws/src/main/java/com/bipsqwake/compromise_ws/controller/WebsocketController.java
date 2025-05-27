@@ -29,7 +29,7 @@ public class WebsocketController {
     private SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/room/{roomId}/hello")
-    public void hello(@DestinationVariable(value = "roomId") String roomId,
+    public void hello(@DestinationVariable("roomId") String roomId,
             @Payload HelloMessage message,
             SimpMessageHeaderAccessor header) throws RoomException {
         String playerId = roomService.addPlayerToRoom(roomId, message.name(), header.getSessionId());
@@ -38,6 +38,11 @@ public class WebsocketController {
         } else {
             log.warn("Session attributes for session {} is null", header.getSessionId());
         }
+    }
+
+    @MessageMapping("/room/{roomId}/start")
+    public void start(@DestinationVariable("roomId") String roomId, SimpMessageHeaderAccessor header) throws RoomException {
+        roomService.startRoom(roomId);
     }
 
     @MessageExceptionHandler
