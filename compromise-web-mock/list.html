@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Редактировать список | Compromise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .modal-img-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #eee;
+      display: block;
+      margin: 0.5rem auto 1rem auto;
+      box-shadow: 0 1px 4px #0001;
+    }
+    .modal-img-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #eee;
+      color: #bdbdbd;
+      font-size: 2.2rem;
+      margin: 0.5rem auto 1rem auto;
+      box-shadow: 0 1px 4px #0001;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="back-bar">
+      <button class="back-btn" onclick="history.back()" title="Назад"><i class="fa-solid fa-arrow-left"></i></button>
+    </div>
+    <input class="list-title-edit" type="text" value="Список для вечеринки" id="edit-list-title">
+    <section class="element-section">
+      <span class="element-info">
+        <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=80&q=80" alt="Пицца" class="element-thumb">
+        <span class="element-title">Пицца</span>
+      </span>
+      <span class="element-actions">
+        <button class="secondary" title="Редактировать" onclick="openModal('Пицца')"><i class="fa-solid fa-pen"></i></button>
+        <button class="secondary" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+      </span>
+    </section>
+    <section class="element-section">
+      <span class="element-info">
+        <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=80&q=80" alt="Суши" class="element-thumb">
+        <span class="element-title">Суши</span>
+      </span>
+      <span class="element-actions">
+        <button class="secondary" title="Редактировать" onclick="openModal('Суши')"><i class="fa-solid fa-pen"></i></button>
+        <button class="secondary" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+      </span>
+    </section>
+    <section class="element-section">
+      <span class="element-info">
+        <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=80&q=80" alt="Бургеры" class="element-thumb">
+        <span class="element-title">Бургеры</span>
+      </span>
+      <span class="element-actions">
+        <button class="secondary" title="Редактировать" onclick="openModal('Бургеры')"><i class="fa-solid fa-pen"></i></button>
+        <button class="secondary" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+      </span>
+    </section>
+    <button class="add-element-btn" title="Добавить новый элемент" onclick="openModal()"><i class="fa-solid fa-plus"></i></button>
+
+    <!-- Модальное окно -->
+    <div id="elementModal" class="modal">
+      <div class="modal-content">
+        <button class="close-modal" onclick="closeModal()" title="Закрыть"><i class="fa-solid fa-xmark"></i></button>
+        <form id="elementForm" autocomplete="off">
+          <label for="element-name">Название</label>
+          <input type="text" id="element-name" name="element-name" required placeholder="Введите название">
+          <label for="element-desc">Описание</label>
+          <textarea id="element-desc" name="element-desc" rows="2" placeholder="Введите описание"></textarea>
+          <label for="element-img">Изображение</label>
+          <div id="imgPreviewWrap">
+            <span class="modal-img-placeholder" id="imgPlaceholder"><i class="fa-regular fa-image"></i></span>
+            <img src="" id="imgPreview" class="modal-img-preview" style="display:none;" alt="Превью">
+          </div>
+          <input type="file" id="element-img" name="element-img" accept="image/*">
+          <button type="submit" class="contrast" style="margin-top:1.2rem;width:100%;">Сохранить</button>
+        </form>
+      </div>
+    </div>
+    <script>
+      function openModal(name = '') {
+        document.getElementById('elementModal').style.display = 'block';
+        document.getElementById('element-name').value = name;
+        document.getElementById('element-desc').value = '';
+        document.getElementById('element-img').value = '';
+        showPlaceholder();
+      }
+      function closeModal() {
+        document.getElementById('elementModal').style.display = 'none';
+      }
+      // Закрытие по клику вне окна
+      window.onclick = function(event) {
+        let modal = document.getElementById('elementModal');
+        if (event.target == modal) {
+          closeModal();
+        }
+      }
+      // Предпросмотр изображения
+      function showPlaceholder() {
+        document.getElementById('imgPreview').style.display = 'none';
+        document.getElementById('imgPreview').src = '';
+        document.getElementById('imgPlaceholder').style.display = 'flex';
+      }
+      document.addEventListener('DOMContentLoaded', function() {
+        var fileInput = document.getElementById('element-img');
+        var imgPreview = document.getElementById('imgPreview');
+        var imgPlaceholder = document.getElementById('imgPlaceholder');
+        if (fileInput) {
+          fileInput.addEventListener('change', function() {
+            if (fileInput.files && fileInput.files.length > 0) {
+              var reader = new FileReader();
+              reader.onload = function(e) {
+                imgPreview.src = e.target.result;
+                imgPreview.style.display = 'block';
+                imgPlaceholder.style.display = 'none';
+              };
+              reader.readAsDataURL(fileInput.files[0]);
+            } else {
+              showPlaceholder();
+            }
+          });
+        }
+      });
+    </script>
+  </main>
+</body>
+</html>

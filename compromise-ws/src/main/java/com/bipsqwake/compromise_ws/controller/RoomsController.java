@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.bipsqwake.compromise_ws.message.RoomCreateRequest;
 import com.bipsqwake.compromise_ws.response.RoomResponse;
 import com.bipsqwake.compromise_ws.room.Card;
 import com.bipsqwake.compromise_ws.room.Room;
@@ -26,7 +27,7 @@ public class RoomsController {
     RoomService roomService;
 
     @PostMapping("/create")
-    public RoomResponse createRoom() {
+    public RoomResponse createRoom(RoomCreateRequest request) {
         List<Card> tmpList = new ArrayList<>();
         tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc90", "0", "Zero"));
         tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc91", "1", "One"));
@@ -34,7 +35,7 @@ public class RoomsController {
         tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc93", "3", "Fo.. Just kidding. Three"));
         tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc94", "4", "Five"));
 
-        return new RoomResponse(roomService.createRoom(tmpList));
+        return new RoomResponse(roomService.createRoom(request.name(), tmpList));
     }
 
     @GetMapping

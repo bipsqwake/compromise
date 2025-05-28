@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Комната | Compromise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .room-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin: 1.2rem 0 0.3rem 0;
+    }
+    .room-desc {
+      font-size: 0.98rem;
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+    .room-content {
+      max-width: 400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .room-content .button-group {
+      width: 100%;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section style="text-align:center;">
+      <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Случайное изображение" style="margin:2rem 0;max-width:100%;border-radius:0.7rem;">
+      <div class="room-content">
+        <div class="room-title">Выбор фильма на вечер</div>
+        <div class="room-desc">Сегодня решаем, какой фильм смотреть всей компанией. Каждый может проголосовать, а потом обсудить!</div>
+        <div class="button-group">
+          <button class="outline">NOT OK</button>
+          <button class="contrast">OK</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

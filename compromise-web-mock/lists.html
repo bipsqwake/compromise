@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Списки голосований | Compromise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .top-actions {
+      display: flex;
+      gap: 1.1rem;
+      position: fixed;
+      top: 1.2rem;
+      right: 2.2rem;
+      z-index: 110;
+    }
+    .top-actions button {
+      background: none;
+      border: none;
+      color: #4f46e5;
+      font-size: 1.45rem;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      padding: 0.5rem 0.7rem;
+      border-radius: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .top-actions button:hover {
+      background: #eef2ff;
+      color: #3730a3;
+    }
+    @media (max-width: 600px) {
+      .top-actions {
+        right: 1rem;
+        top: 0.7rem;
+      }
+    }
+    .main-header {
+      position: relative;
+      min-height: 3.5rem;
+    }
+    .main-header h2 {
+      margin-top: 3.9rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <div class="top-actions">
+      <button title="Профиль/настройки"><i class="fa-solid fa-user"></i></button>
+      <button title="Выйти"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+    <div class="main-header">
+      <h2 style="text-align:center;margin:2rem 0 2rem 0;">Списки для голосования</h2>
+    </div>
+    <section class="list-section">
+      <span class="list-title">Вечер настолок</span>
+      <span class="list-actions">
+        <button class="secondary" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+        <button class="secondary" title="Редактировать"><i class="fa-solid fa-pen"></i></button>
+        <button class="contrast" title="Запустить"><i class="fa-solid fa-play"></i></button>
+      </span>
+    </section>
+    <section class="list-section">
+      <span class="list-title">Что заказать на обед?</span>
+      <span class="list-actions">
+        <button class="secondary" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+        <button class="secondary" title="Редактировать"><i class="fa-solid fa-pen"></i></button>
+        <button class="contrast" title="Запустить"><i class="fa-solid fa-play"></i></button>
+      </span>
+    </section>
+    <section class="list-section">
+      <span class="list-title">Фильмы для пятницы</span>
+      <span class="list-actions">
+        <button class="secondary" title="Удалить"><i class="fa-solid fa-trash"></i></button>
+        <button class="secondary" title="Редактировать"><i class="fa-solid fa-pen"></i></button>
+        <button class="contrast" title="Запустить"><i class="fa-solid fa-play"></i></button>
+      </span>
+    </section>
+    <button class="add-list-btn" title="Добавить новый список"><i class="fa-solid fa-plus"></i></button>
+  </main>
+</body>
+</html>

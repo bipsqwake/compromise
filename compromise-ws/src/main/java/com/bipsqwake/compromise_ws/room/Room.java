@@ -26,6 +26,7 @@ public class Room {
     private final List<Card> cards;
     private final ConcurrentSkipListMap<String, Map<String, Decision>> decisions;
     // state
+    private String name;
     private Map<String, Player> players = new ConcurrentSkipListMap<>();
     private Set<String> finishedPlayersIds = new ConcurrentSkipListSet<>();
     private GameState state = GameState.PREPARE;
@@ -34,7 +35,8 @@ public class Room {
     // tools
     private static final Random random = new Random();
 
-    public Room(List<Card> cards) {
+    public Room(String name, List<Card> cards) {
+        this.name = name;
         this.id = UUID.randomUUID().toString();
         this.cards = cards;
         this.decisions = new ConcurrentSkipListMap<>();
@@ -49,6 +51,10 @@ public class Room {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     // player adders/removers

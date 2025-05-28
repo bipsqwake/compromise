@@ -20,7 +20,7 @@ public class RoomTest {
 
     @Test
     public void positive() throws RoomException {
-        Room room = new Room(getCardList());
+        Room room = new Room("Test", getCardList());
         Assertions.assertNotNull(room.getId(), "Room should have not null id");
         Assertions.assertEquals(GameState.PREPARE, room.getState(), "Expected room to init in PREPARE state");
 

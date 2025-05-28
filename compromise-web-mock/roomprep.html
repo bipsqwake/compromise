@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Подготовка комнаты | Compromise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .input-copy-group {
+      display: flex;
+      max-width: 400px;
+      margin: 0 auto 1.5rem auto;
+    }
+    .input-copy-group input {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+      flex: 1 1 0;
+    }
+    .input-copy-group button {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      width: 12%;
+      min-width: 44px;
+      font-size: 1.2rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .config-section {
+      max-width: 350px;
+      margin: 2rem auto 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section>
+      <div class="input-copy-group">
+        <input type="text" value="https://compromise.app/room/123456" id="room-link" readonly>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('room-link').value)">📋</button>
+      </div>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https://compromise.app/room/123456" alt="QR-код комнаты" style="display:block;margin:2rem auto;">
+      <table style="margin: 2rem auto; max-width: 300px;">
+        <thead>
+          <tr><th>Участники</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Анна</td></tr>
+          <tr><td>Иван</td></tr>
+          <tr><td>Сергей</td></tr>
+          <tr><td>Екатерина</td></tr>
+        </tbody>
+      </table>
+      <form class="config-section">
+        <label for="room-name">Название комнаты</label>
+        <input type="text" id="room-name" placeholder="Например, Вечер пятницы">
+        <label for="vote-type">Тип голосования</label>
+        <select id="vote-type">
+          <option>Открытое</option>
+          <option>Анонимное</option>
+          <option>Многоэтапное</option>
+        </select>
+        <label for="anon-toggle">Анонимное голосование</label>
+        <input type="checkbox" id="anon-toggle" role="switch">
+      </form>
+      <div style="display: flex; justify-content: center;">
+        <a href="room.html" role="button" class="primary" style="margin-top:2rem;">Начать</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

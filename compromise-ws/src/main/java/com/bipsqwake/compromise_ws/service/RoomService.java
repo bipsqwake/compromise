@@ -35,8 +35,8 @@ public class RoomService {
 
     private Map<String, Room> rooms = new ConcurrentSkipListMap<>();
 
-    public String createRoom(List<Card> cards) {
-        Room room = new Room(cards);
+    public String createRoom(String name, List<Card> cards) {
+        Room room = new Room(name, cards);
         rooms.put(room.getId(), room);
         return room.getId();
     }

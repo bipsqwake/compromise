@@ -1,6 +1,8 @@
 name: compromise-ws
-logging:
-  level:
-    root: DEBUG
+server:
+  port: 8081
+# logging:
+#   level:
+#     root: DEBUG
 appconfig:
   allowed-origins-pattern: "*"
