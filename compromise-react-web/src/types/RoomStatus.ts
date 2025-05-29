@@ -1,0 +1,1 @@
+export type RoomStatus = "INITIALIZED" | "PRE_LOBBY" | "LOBBY" | "PROCESS" | "FINISH"

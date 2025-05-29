@@ -11,9 +11,11 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
-import com.bipsqwake.compromise_ws.message.FinishMessage;
 import com.bipsqwake.compromise_ws.message.PlayersResponse;
 import com.bipsqwake.compromise_ws.message.PlayersResponse.Action;
+import com.bipsqwake.compromise_ws.message.status.FinishMessage;
+import com.bipsqwake.compromise_ws.message.status.StatusMessage;
+import com.bipsqwake.compromise_ws.message.status.StatusMessage.Status;
 import com.bipsqwake.compromise_ws.room.Card;
 import com.bipsqwake.compromise_ws.room.Decision;
 import com.bipsqwake.compromise_ws.room.GameState;
@@ -35,10 +37,10 @@ public class RoomService {
 
     private Map<String, Room> rooms = new ConcurrentSkipListMap<>();
 
-    public String createRoom(String name, List<Card> cards) {
+    public Room createRoom(String name, List<Card> cards) {
         Room room = new Room(name, cards);
         rooms.put(room.getId(), room);
-        return room.getId();
+        return room;
     }
 
     public Room getRoom(String roomId) {
@@ -84,6 +86,7 @@ public class RoomService {
             }
             Map<String, List<Card>> startCards = room.start();
             for (String playerSession : startCards.keySet()) {
+                messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), new StatusMessage(Status.STARTED));
                 for (Card card : startCards.get(playerSession)) {
                     log.info("Sending card {} to session {}", card.id(), playerSession);
                     messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, card,

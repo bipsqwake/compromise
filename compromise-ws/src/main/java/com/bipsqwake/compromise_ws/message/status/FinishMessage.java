@@ -1,25 +1,19 @@
-package com.bipsqwake.compromise_ws.message;
+package com.bipsqwake.compromise_ws.message.status;
 
 import com.bipsqwake.compromise_ws.room.Card;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class FinishMessage {
+public class FinishMessage extends StatusMessage{
     
-    @JsonProperty
-    private Status status;
     @JsonProperty
     private Card selectedCard;
 
     public FinishMessage() {
-        
+        super(Status.FINISHED);
     }
 
     public FinishMessage(Card selectedCard) {
-        this.status = Status.FINISHED;
+        super(Status.FINISHED);
         this.selectedCard = selectedCard;
-    }
-
-    public enum Status {
-        FINISHED
     }
 }

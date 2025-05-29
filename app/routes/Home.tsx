@@ -1,9 +1,10 @@
-import type { Route } from "./+types/home";
+
 import CompromiseApiContext from "~/restapi/CompromiseApiContext";
 import { CompromiseApiClient } from "~/restapi/Api";
-import { Welcome } from "~/welcome/welcome";
+import type * as root from "../+types/root";
+import { Welcome } from "~/welcome/Welcome";
 
-export function meta({ }: Route.MetaArgs) {
+export function meta({ }: root.Route.MetaArgs) {
   return [
     { title: "Home | Compromise" }
   ];
