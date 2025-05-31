@@ -85,8 +85,8 @@ public class RoomService {
                 return;
             }
             Map<String, List<Card>> startCards = room.start();
+            messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), new StatusMessage(Status.STARTED));
             for (String playerSession : startCards.keySet()) {
-                messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), new StatusMessage(Status.STARTED));
                 for (Card card : startCards.get(playerSession)) {
                     log.info("Sending card {} to session {}", card.id(), playerSession);
                     messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, card,

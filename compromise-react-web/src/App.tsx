@@ -8,7 +8,7 @@ export default function App() {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <CompromiseRoomApiContext.Provider value={new CompromiseRoomApiClient("http://localhost:8081")}>
+            <CompromiseRoomApiContext.Provider value={new CompromiseRoomApiClient(import.meta.env.VITE_API_URL)}>
                 <AppRouter />
             </CompromiseRoomApiContext.Provider>
         </QueryClientProvider>

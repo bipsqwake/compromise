@@ -19,7 +19,7 @@ export default function RoomStateRouter() {
         return <RoomHello name={roomInfo.roomName} onInput={toLobby} />
     } else {
         return (
-            <StompSessionProvider url={"ws://localhost:8081/compromise"}>
+            <StompSessionProvider url={import.meta.env.VITE_WS_URL}>
                 <WsRoom />
             </StompSessionProvider>
         );

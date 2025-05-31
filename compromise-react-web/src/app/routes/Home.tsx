@@ -1,24 +1,23 @@
 import axios, { type AxiosResponse } from "axios";
-import { Navigate } from "react-router";
 import type { RoomCreateRequest } from "../../types/roomCreate/RoomCreateRequest";
 import type { RoomResponse } from "../../types/roomCreate/RoomCreateResponse";
 
 export default function Home() {
 
     function createRoom() {
-        axios.post<RoomCreateRequest, AxiosResponse<RoomResponse>>("http://localhost:8081/rooms/create", {name: "TestName"})
-        .then(function(response) {
-            const roomId = response.data.id
-            window.location.replace(`/rooms/${roomId}`)
-        });
-        
+        axios.post<RoomCreateRequest, AxiosResponse<RoomResponse>>(import.meta.env.VITE_API_URL + "/rooms/create", { name: "TestName" })
+            .then(function (response) {
+                const roomId = response.data.id
+                window.location.replace(`/rooms/${roomId}`)
+            });
+
     }
 
     return (
         <div>
             <header>
                 <h1>Compromise</h1>
-                <hr/>
+                <hr />
             </header>
             <p className="slogan">Всем нравится? Тогда берём!</p>
             <div className="button-group">

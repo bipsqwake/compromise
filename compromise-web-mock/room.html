@@ -30,12 +30,42 @@
       width: 100%;
       justify-content: center;
     }
+    /* --- Добавлено: контейнер и стили для изображения --- */
+    .image-container {
+      width: 600px;
+      height: 400px;
+      margin: 2rem auto;
+      border-radius: 0.7rem;
+      overflow: hidden;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .image-container img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain; /* Вписывает изображение полностью */
+      display: block;
+    }
+    /* Для мобильных устройств — адаптация */
+    @media (max-width: 650px) {
+      .image-container {
+        width: 100vw;
+        max-width: 98vw;
+        height: 50vw;
+        max-height: 65vw;
+      }
+    }
   </style>
 </head>
 <body>
   <main class="container">
     <section style="text-align:center;">
-      <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80" alt="Случайное изображение" style="margin:2rem 0;max-width:100%;border-radius:0.7rem;">
+      <div class="image-container">
+        <img src="https://image.spreadshirtmedia.net/image-server/v1/products/T1459A839PA4459PT28D195809042W8333H10000/views/1,width=550,height=550,appearanceId=839,backgroundColor=F2F2F2/number-1-number-sticker.jpg" alt="Случайное изображение">
+      </div>
       <div class="room-content">
         <div class="room-title">Выбор фильма на вечер</div>
         <div class="room-desc">Сегодня решаем, какой фильм смотреть всей компанией. Каждый может проголосовать, а потом обсудить!</div>

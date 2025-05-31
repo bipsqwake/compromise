@@ -5,7 +5,7 @@ import { useContext } from "react";
 export default function RoomLobby({ playersList }: { playersList: string[] }) {
     const url = window.location.href;
     const stompClient = useStompClient();
-    const { roomInfo, setRoomInfo } = useContext(RoomInfoContext);
+    const { roomInfo } = useContext(RoomInfoContext);
 
     function startRoom() {
         if (stompClient && stompClient.connected) {

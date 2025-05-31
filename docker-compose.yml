@@ -1,0 +1,19 @@
+services:
+  web:
+    container_name: compromise-web
+    build: 
+      context: ./compromise-react-web
+      args:
+        VITE_MODE: ${VITE_MODE}
+
+    ports:
+      - "3000:80"
+  api:
+    container_name: compromise-ws
+    build:
+      context: ./compromise-ws
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+    ports:
+      - "8081:8081"
+    

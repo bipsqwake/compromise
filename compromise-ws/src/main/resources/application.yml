@@ -5,5 +5,5 @@ server:
 #   level:
 #     root: DEBUG
 appconfig:
-  allowed-origins-pattern: "http://localhost:5173"
+  allowed-origins-pattern: "http://localhost:3000"
   allowed-methods: GET, POST, OPTIONS, DELETE
