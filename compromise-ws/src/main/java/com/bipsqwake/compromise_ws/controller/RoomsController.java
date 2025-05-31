@@ -1,11 +1,8 @@
 package com.bipsqwake.compromise_ws.controller;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,14 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.bipsqwake.compromise_ws.exception.InvalidInputException;
+import com.bipsqwake.compromise_ws.message.BgRoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomResponse;
 import com.bipsqwake.compromise_ws.room.Card;
 import com.bipsqwake.compromise_ws.room.Room;
 import com.bipsqwake.compromise_ws.service.RoomService;
-import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.bipsqwake.compromise_ws.service.bggservice.BggService;
+import com.bipsqwake.compromise_ws.service.teseraservice.TeseraService;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,24 +38,39 @@ public class RoomsController {
     @Autowired
     private RoomService roomService;
 
+    @Autowired
+    private BggService bggService;
+
+    @Autowired
+    private TeseraService teseraService;
+
     @Value("classpath:/data/rests.json")
     private Resource restsInput;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    @PostMapping("/create")
-    public RoomResponse createRoom(@RequestBody RoomCreateRequest request) throws IOException {
-        // List<Card> tmpList = new ArrayList<>();
-        // tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc90", "0", "Zero", "https://img.pixers.pics/pho_wat(s3:700/FO/57/91/04/67/700_FO57910467_c3eb65d3d570cac084541479f0dea2c7.jpg,700,700,cms:2018/10/5bd1b6b8d04b8_220x50-watermark.png,over,480,650,jpg)/stickers-fire-alphabet-number-0-zero.jpg.jpg"));
-        // tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc91", "1", "One", "https://image.spreadshirtmedia.net/image-server/v1/products/T1459A839PA4459PT28D195809042W8333H10000/views/1,width=550,height=550,appearanceId=839,backgroundColor=F2F2F2/number-1-number-sticker.jpg"));
-        // tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc92", "2", "Two", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd8OENc93qPZc5n1TnO_OLh5-XxTpoto-sgw&s"));
-        // tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc93", "3", "Fo.. Just kidding. Three", "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQs18Alp46dvHqWIpIvj7tjqhovdcdeoTN-1w&s"));
-        // tmpList.add(new Card("6a9dcaa2-4c68-40cc-a4f5-d85d8c51bc94", "4", "Five", "https://img.uline.com/is/image/uline/S-25441-4?$"));
 
-        log.info(request.name());
+    @PostMapping("/create/food")
+    public RoomResponse createRoom(@RequestBody RoomCreateRequest request) throws IOException, InvalidInputException {
         List<Card> list = getCardsFromResource(restsInput);
         Room room = roomService.createRoom(request.name(), list);
+        return new RoomResponse(room.getId(), room.getName());
+    }
+
+    @PostMapping("/create/boardgames")
+    public RoomResponse createBggRoom(@RequestBody BgRoomCreateRequest request) throws InvalidInputException {
+        List<Card> cards;
+        switch (request.source()) {
+            case BGG:
+                cards = bggService.getCardsFromCollection(request.username(), request.playersNum());
+                break;
+            default:
+                cards = teseraService.getCardsFromCollection(request.username(), request.playersNum());
+                break;
+        }
+        //TODO error handle
+        Room room = roomService.createRoom(request.name(), cards);
         return new RoomResponse(room.getId(), room.getName());
     }
 

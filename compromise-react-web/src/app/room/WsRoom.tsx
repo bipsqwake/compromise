@@ -58,6 +58,8 @@ export default function WsRoom() {
 
     function receiveCard(message: Card) {
         cardsList.current.push(message);
+        const img = new Image();
+        img.src = message.img;
         if (waitingRef.current) {
             setWaiting(false);
         }
