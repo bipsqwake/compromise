@@ -9,11 +9,11 @@ export default function RoomCard({ card, decisionFn }: { card: Card, decisionFn:
             <div className="room-content">
                 <Image url={card.img} />
                 <div className="room-title">{card.name}</div>
-                <div className="room-desc">{card.description}</div>
                 <div className="button-group">
                     <button className="outline" onClick={() => decisionFn(card.id, "NOT_OK")}>NOT OK</button>
                     <button className="contrast" onClick={() => decisionFn(card.id, "OK")}>OK</button>
                 </div>
+                <div className="room-desc">{card.description}</div>
             </div>
         </section>
     );

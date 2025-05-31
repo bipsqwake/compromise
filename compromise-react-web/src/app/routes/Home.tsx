@@ -5,7 +5,7 @@ import type { RoomResponse } from "../../types/roomCreate/RoomCreateResponse";
 export default function Home() {
 
     function createRoom() {
-        axios.post<RoomCreateRequest, AxiosResponse<RoomResponse>>(import.meta.env.VITE_API_URL + "/rooms/create", { name: "TestName" })
+        axios.post<RoomCreateRequest, AxiosResponse<RoomResponse>>(import.meta.env.VITE_API_URL + "/rooms/create", { name: "Пожрать" })
             .then(function (response) {
                 const roomId = response.data.id
                 window.location.replace(`/rooms/${roomId}`)

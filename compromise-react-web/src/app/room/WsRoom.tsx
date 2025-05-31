@@ -59,7 +59,6 @@ export default function WsRoom() {
     function receiveCard(message: Card) {
         cardsList.current.push(message);
         if (waitingRef.current) {
-            console.log("Reset waiting")
             setWaiting(false);
         }
     }

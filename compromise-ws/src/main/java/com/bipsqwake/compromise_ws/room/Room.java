@@ -75,7 +75,7 @@ public class Room {
     }
 
     public void removePlayer(String id) {
-        //need to check if player is in?
+        // need to check if player is in?
         players.remove(id);
     }
 
@@ -125,7 +125,8 @@ public class Room {
         synchronized (decisions) {
             Map<String, Decision> cardDecisions = decisions.get(cardId);
             cardDecisions.put(playerId, decision);
-            log.info("Player {}:{} decided that {}:{} is {}", playerId, players.get(playerId).getName(), cardId, getCardById(cardId).name(), decision);
+            log.info("Player {}:{} decided that {}:{} is {}", playerId, players.get(playerId).getName(), cardId,
+                    getCardById(cardId).name(), decision);
             log.info("Decision map {}", decisions);
         }
     }
@@ -168,12 +169,15 @@ public class Room {
                     .filter(Objects::nonNull)
                     .limit(cardsToShuffle)
                     .toList();
-        }
-        if (deck == null || deck.isEmpty()) {
-            return null;
+            if (deck == null || deck.isEmpty()) {
+                return null;
+            }
+            Card result = deck.get(random.nextInt(deck.size()));
+            Map<String, Decision> cardDecisions = decisions.get(result.id());
+            cardDecisions.put(playerId, Decision.PENDING);
+            return result;
         }
 
-        return deck.get(random.nextInt(deck.size()));
     }
 
     private List<Card> getInitialCards(String playerId) throws RoomException {
