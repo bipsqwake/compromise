@@ -19,13 +19,13 @@ export default function Home() {
     return (
         <div>
             <header>
-                <h1>Compromise</h1>
+                <h1>Synkro</h1>
                 <hr />
             </header>
             <p className="slogan">Всем нравится? Тогда берём!</p>
             <div className="button-group">
                 {/* <a href="#" role="button" className="contrast">Войти</a> */}
-                <a href="#" onClick={createFoodRoom} role="button">Создать комнату</a>
+                <a href="#" onClick={createFoodRoom} role="button">Создать тестовую комнату</a>
                 <a href="#" onClick={createBggRoom} role="button">Создать настолочную комнату</a>
             </div>
         </div>

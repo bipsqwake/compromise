@@ -1,7 +1,7 @@
 import TinderCard from "react-tinder-card";
 import type { Card } from "../../types/ws/Card";
 import type { Decision } from "../../types/ws/DecisionMessage";
-import { useRef, type Ref } from "react";
+import { useRef } from "react";
 
 export default function RoomCard({ card, decisionFn }: { card: Card, decisionFn: (arg1: string, arg2: Decision) => void }) {
 

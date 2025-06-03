@@ -19,11 +19,7 @@ export default function WsRoom() {
     const [currentCard, setCurrentCard] = useState<Card[] | undefined>(undefined);
     const selectedCard = useRef<Card | undefined>(undefined);
     const cardsList = useRef<Card[]>([]);
-    const [waiting, setWaiting] = useState(false);
-    const waitingRef = useRef(false);
     const stateRef = useRef("");
-
-    waitingRef.current = waiting;
     stateRef.current = roomInfo.state;
 
 
