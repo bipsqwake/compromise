@@ -13,14 +13,12 @@ export default function BgPrepare() {
 
     const {
         register,
-        handleSubmit,
-        watch,
-        formState: { errors },
+        handleSubmit
     } = useForm<Inputs>()
     
     const onSubmit = (data: Inputs) => {
 
-        axios.post<RoomCreateRequest, AxiosResponse<RoomResponse>>(import.meta.env.VITE_API_URL + "/rooms/create/boardgames", {...data, name: "Коллекция игрока bipsqwake"})
+        axios.post<RoomCreateRequest, AxiosResponse<RoomResponse>>(import.meta.env.VITE_API_URL + "/rooms/create/boardgames", {...data, name: "Коллекция игрока " + data.username})
             .then(function (response) {
                 const roomId = response.data.id
                 window.location.replace(`/rooms/${roomId}`)
