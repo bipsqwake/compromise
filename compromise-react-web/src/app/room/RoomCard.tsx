@@ -1,20 +1,42 @@
+import TinderCard from "react-tinder-card";
 import type { Card } from "../../types/ws/Card";
 import type { Decision } from "../../types/ws/DecisionMessage";
-import Image from "../components/Image";
+import { useRef, type Ref } from "react";
 
 export default function RoomCard({ card, decisionFn }: { card: Card, decisionFn: (arg1: string, arg2: Decision) => void }) {
 
+    const decision = useRef("");
+
+    const swiped = (direction: string, nameToDelete: string) => {
+        console.log('removing: ' + nameToDelete + " " + direction)
+        if (direction == "right" || direction == "up") {
+            decision.current = "OK";
+        } else if (direction == "left" || direction == "down") {
+            decision.current = "NOT_OK";
+        } else {
+            console.log("hmm " + (direction == "right"));
+        }
+    }
+
+    const outOfFrame = () => {
+        console.log("Decide " + decision.current)
+        decisionFn(card.id, decision.current as Decision);
+    }
+
+    const encodedUrl = encodeURI(card.img);
+
+    const style = {
+        backgroundImage: `url("${encodedUrl}")`,
+        backgroundSize: "contain"
+    }
     return (
-        <section className="process-section">
-            <div className="room-content">
-                <Image url={card.img} />
-                <div className="room-title">{card.name}</div>
-                <div className="button-group">
-                    <button className="outline" onClick={() => decisionFn(card.id, "NOT_OK")}>NOT OK</button>
-                    <button className="contrast" onClick={() => decisionFn(card.id, "OK")}>OK</button>
+        <TinderCard preventSwipe={["up", "down"]} className='swipe' onSwipe={(dir) => swiped(dir, card.id)} onCardLeftScreen={() => outOfFrame()}>
+            <div className="card" style={style}>
+                <div className="card-content">
+                    <div className="card-title">{card.name}</div>
+                    <div className="card-desc">{card.description}</div>
                 </div>
-                <div className="room-desc">{card.description}</div>
             </div>
-        </section>
+        </TinderCard>
     );
 }

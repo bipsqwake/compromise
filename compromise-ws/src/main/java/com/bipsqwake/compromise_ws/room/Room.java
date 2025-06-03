@@ -167,10 +167,20 @@ public class Room {
             deck = cards.stream()
                     .filter(card -> canShowCardToPlayer(playerId, decisions.get(card.id())))
                     .filter(Objects::nonNull)
-                    .limit(cardsToShuffle)
                     .toList();
             if (deck == null || deck.isEmpty()) {
                 return null;
+            }
+            // check for oks from other players
+            //I wrote this at 2pm and wanted to get some result to show to my friends tomorrow so
+            //TODO refactor
+            Card priorityCard = deck.stream()
+                    .filter(card -> likedByOtherPlayer(playerId, decisions.get(card.id())))
+                    .findAny().orElse(null);
+            if (priorityCard != null) {
+                Map<String, Decision> cardDecisions = decisions.get(priorityCard.id());
+                cardDecisions.put(playerId, Decision.PENDING);
+                return priorityCard;
             }
             Card result = deck.get(random.nextInt(deck.size()));
             Map<String, Decision> cardDecisions = decisions.get(result.id());
@@ -188,7 +198,6 @@ public class Room {
         synchronized (decisions) {
             deck = cards.stream()
                     .filter(Objects::nonNull)
-                    .limit(cardsToShuffle)
                     .toList();
         }
         if (deck.size() < 2) {
@@ -210,6 +219,11 @@ public class Room {
             return false;
         }
         return true;
+    }
+
+    private boolean likedByOtherPlayer(String playerId, Map<String, Decision> decisions) {
+        return decisions.entrySet().stream()
+                .anyMatch(entry -> !entry.getKey().equals(playerId) && entry.getValue() == Decision.OK);
     }
 
     // private

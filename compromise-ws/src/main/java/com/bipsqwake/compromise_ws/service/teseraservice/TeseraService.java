@@ -1,6 +1,5 @@
 package com.bipsqwake.compromise_ws.service.teseraservice;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;

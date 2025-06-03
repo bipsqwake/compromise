@@ -12,7 +12,7 @@ ARG VITE_MODE=qa
 # Копируем нужный .env файл (vite поддерживает .env.production, .env.staging, .env.development)
 RUN if [ -f ".env.${VITE_MODE}" ]; then cp ".env.${VITE_MODE}" .env; fi
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 RUN npm run build -- --mode $VITE_MODE
 
 # Этап запуска

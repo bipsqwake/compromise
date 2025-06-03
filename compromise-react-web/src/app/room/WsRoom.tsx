@@ -14,7 +14,7 @@ export default function WsRoom() {
     const stompClient = useStompClient();
 
     const [playersList, setPlayersList] = useState([""]);
-    const [currentCard, setCurrentCard] = useState<Card | undefined>(undefined);
+    const [currentCard, setCurrentCard] = useState<Card[] | undefined>(undefined);
     const selectedCard = useRef<Card | undefined>(undefined);
     const cardsList = useRef<Card[]>([]);
     const [waiting, setWaiting] = useState(false);
@@ -52,7 +52,7 @@ export default function WsRoom() {
         } else if (stateRef.current == "PROCESS" && message.status == "FINISHED") {
             console.log("Finish received");
             selectedCard.current = message.selectedCard;
-            setRoomInfo({...roomInfo, state: "FINISH"});
+            setRoomInfo({ ...roomInfo, state: "FINISH" });
         }
     }
 
@@ -60,37 +60,52 @@ export default function WsRoom() {
         cardsList.current.push(message);
         const img = new Image();
         img.src = message.img;
-        if (waitingRef.current) {
-            setWaiting(false);
-        }
+        setCurrentCard(cardsList.current.slice().reverse());
+        // if (waitingRef.current) {
+        //     setWaiting(false);
+        // }
     }
 
     function makeDecision(cardId: string, decision: Decision) {
         if (stompClient && stompClient.connected) {
             stompClient.publish({
                 destination: `/server/room/${roomInfo.roomId}/decision`,
-                body: JSON.stringify({cardId: cardId, decision: decision}),
+                body: JSON.stringify({ cardId: cardId, decision: decision }),
             });
         }
-        setCurrentCard(undefined);
+        cardsList.current = cardsList.current.filter(c => c.id != cardId)
+        setCurrentCard(cardsList.current.slice().reverse());
     }
 
 
     if (roomInfo.state == "LOBBY") {
         return <RoomLobby playersList={playersList} />
     } else if (roomInfo.state == "PROCESS") {
+        console.log("Checking card " + currentCard)
         if (currentCard != undefined) {
-            return <RoomCard card={currentCard} decisionFn={makeDecision}/>
+            return (
+                <div className="process-container">
+                    <section className="card-container">
+                        {currentCard.map(c => <RoomCard key={c.id} card={c} decisionFn={makeDecision} />)}
+                        {/* <RoomCard key={currentCard.id} card={currentCard} decisionFn={makeDecision} /> */}
+                    </section>
+                    <div className="like-buttons">
+                        <button className="like-btn not-ok" onClick={() => makeDecision(currentCard[currentCard.length - 1].id, "NOT_OK")}><i className="fa-solid fa-xmark"></i> NOT OK</button>
+                        <button className="like-btn ok" onClick={() => makeDecision(currentCard[currentCard.length - 1].id, "OK")}><i className="fa-solid fa-check"></i> OK</button>
+                    </div>
+                </div>
+
+            );
         } else {
             if (!waiting && cardsList.current.length > 0) {
-                var nextCard = cardsList.current.shift();
-                setCurrentCard(nextCard);
-            } else if (!waiting){
+                // var nextCard = cardsList.current.shift();
+                setCurrentCard(cardsList.current.slice().reverse());
+            } else if (!waiting) {
                 setWaiting(true)
             }
         }
     } else if (roomInfo.state == "FINISH" && selectedCard.current) {
         console.log("Finished " + selectedCard.current)
         return <RoomSelectedCard card={selectedCard.current} />
-    } 
+    }
 }
