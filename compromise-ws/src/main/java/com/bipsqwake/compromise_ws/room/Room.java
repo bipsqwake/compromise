@@ -30,7 +30,6 @@ public class Room {
     private Map<String, Player> players = new ConcurrentSkipListMap<>();
     private Set<String> finishedPlayersIds = new ConcurrentSkipListSet<>();
     private GameState state = GameState.PREPARE;
-    private int cardsToShuffle = 0;
     private Card selectedCard = null;
     // tools
     private static final Random random = new Random();
@@ -102,7 +101,6 @@ public class Room {
             throw new RoomException("Game should be in PREPARE state to start");
         }
         state = GameState.IN_PROGRESS;
-        cardsToShuffle = players.size() + 1;
         Map<String, List<Card>> result = new HashMap<>();
         for (String playerId : players.keySet()) {
             List<Card> cards = getInitialCards(playerId);
@@ -137,6 +135,10 @@ public class Room {
 
     public synchronized boolean finishCheck() {
         if (state == GameState.FINISHED) {
+            return true;
+        }
+        if (finishedPlayersIds.size() == players.size()) {
+            state = GameState.FINISHED;
             return true;
         }
         synchronized (decisions) {

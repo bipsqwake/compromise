@@ -13,6 +13,7 @@ public class StatusMessage {
 
     public enum Status {
         STARTED,
-        FINISHED
+        FINISHED,
+        FINISHED_NO_CARD
     }
 }

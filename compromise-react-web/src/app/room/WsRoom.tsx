@@ -8,6 +8,8 @@ import RoomLobby from "./RoomLobby";
 import type { Decision } from "../../types/ws/DecisionMessage";
 import RoomSelectedCard from "./RoomSelectedCard";
 import type { PlayerStatusMessage } from "../../types/ws/PlayersStatusMessage";
+import RoomImage from "../components/RoomImage";
+import RoomNoSelectedCard from "./RoomNoSelectedCard";
 
 export default function WsRoom() {
     const { roomInfo, setRoomInfo } = useContext(RoomInfoContext);
@@ -53,6 +55,10 @@ export default function WsRoom() {
             console.log("Finish received");
             selectedCard.current = message.selectedCard;
             setRoomInfo({ ...roomInfo, state: "FINISH" });
+        } else if (stateRef.current == "PROCESS" && message.status == "FINISHED_NO_CARD") {
+            console.log("Finish received");
+            selectedCard.current = message.selectedCard;
+            setRoomInfo({ ...roomInfo, state: "FINISH_NO_CARD" });
         }
     }
 
@@ -82,7 +88,7 @@ export default function WsRoom() {
         return <RoomLobby playersList={playersList} />
     } else if (roomInfo.state == "PROCESS") {
         console.log("Checking card " + currentCard)
-        if (currentCard != undefined) {
+        if (currentCard != undefined && currentCard.length > 0) {
             return (
                 <div className="process-container">
                     <section className="card-container">
@@ -97,15 +103,19 @@ export default function WsRoom() {
 
             );
         } else {
-            if (!waiting && cardsList.current.length > 0) {
-                // var nextCard = cardsList.current.shift();
-                setCurrentCard(cardsList.current.slice().reverse());
-            } else if (!waiting) {
-                setWaiting(true)
-            }
+            return (
+                <div className="process-container">
+                    <RoomImage url={"https://cool-pictures.su/wp-content/uploads/2019/04/15/213634885.gif"} />
+                    <section className="card-container">
+                        Ой... Карточки закончились. Ждём остальных участников
+                    </section>   
+                </div>
+            );
         }
     } else if (roomInfo.state == "FINISH" && selectedCard.current) {
         console.log("Finished " + selectedCard.current)
         return <RoomSelectedCard card={selectedCard.current} />
+    } else if (roomInfo.state == "FINISH_NO_CARD") {
+        return <RoomNoSelectedCard />
     }
 }

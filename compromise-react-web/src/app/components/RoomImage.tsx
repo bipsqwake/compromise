@@ -1,4 +1,4 @@
-export default function Image({ url }: { url: string }) {
+export default function RoomImage({ url }: { url: string }) {
     return (
         <div className="image-container">
             <img src={url} alt="Случайное изображение" className="process-image" />

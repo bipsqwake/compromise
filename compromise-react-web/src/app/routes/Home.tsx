@@ -24,7 +24,7 @@ export default function Home() {
             </header>
             <p className="slogan">Всем нравится? Тогда берём!</p>
             <div className="button-group">
-                <a href="#" role="button" className="contrast">Войти</a>
+                {/* <a href="#" role="button" className="contrast">Войти</a> */}
                 <a href="#" onClick={createFoodRoom} role="button">Создать комнату</a>
                 <a href="#" onClick={createBggRoom} role="button">Создать настолочную комнату</a>
             </div>

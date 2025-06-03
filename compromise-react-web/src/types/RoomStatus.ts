@@ -1,1 +1,1 @@
-export type RoomStatus = "INITIALIZED" | "PRE_LOBBY" | "LOBBY" | "PROCESS" | "FINISH"
+export type RoomStatus = "INITIALIZED" | "PRE_LOBBY" | "LOBBY" | "PROCESS" | "FINISH" | "FINISH_NO_CARD"

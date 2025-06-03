@@ -9,7 +9,7 @@ public class FinishMessage extends StatusMessage{
     private Card selectedCard;
 
     public FinishMessage() {
-        super(Status.FINISHED);
+        super(Status.FINISHED_NO_CARD);
     }
 
     public FinishMessage(Card selectedCard) {

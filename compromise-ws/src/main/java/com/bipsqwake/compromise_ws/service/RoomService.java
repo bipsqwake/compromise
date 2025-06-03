@@ -115,6 +115,13 @@ public class RoomService {
             boolean finished = room.finishCheck();
             if (!finished) {
                 Card nextCard = room.getNextCardForPlayer(playerId);
+                if (nextCard == null) {
+                    room.markPlayerAsFinished(playerId);
+                    if (room.finishCheck()) {
+                        processFinish(room);
+                    }
+                    return;
+                }
                 String playerSession = room.getPlayer(playerId).getSession();
                 log.info("Sending card {} to session {}", nextCard.id(), playerSession);
                 messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, nextCard,
@@ -130,10 +137,8 @@ public class RoomService {
             return;
         }
         Card selectedCard = room.getSelectedCard();
-        if (selectedCard == null) {
-            throw new RoomException(String.format("No selected card in room", room.getId()));
-        }
-        FinishMessage finishMessage = new FinishMessage(selectedCard);
+
+        FinishMessage finishMessage =  selectedCard != null ? new FinishMessage(selectedCard) : new FinishMessage();
         messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), finishMessage);
     }
 
