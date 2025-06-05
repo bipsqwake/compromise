@@ -31,6 +31,7 @@ public class Room {
     private Set<String> finishedPlayersIds = new ConcurrentSkipListSet<>();
     private GameState state = GameState.PREPARE;
     private Card selectedCard = null;
+    private String adminId;
     // tools
     private static final Random random = new Random();
 
@@ -73,9 +74,25 @@ public class Room {
         return playerId;
     }
 
+    public void setAdminId(String adminId) {
+        this.adminId = adminId;
+    }
+
+    public String getAdminId() {
+        return adminId;
+    }
+
     public void removePlayer(String id) {
         // need to check if player is in?
+        if (!isPlayerPresent(id)) {
+            return;
+        }
         players.remove(id);
+        if (state == GameState.IN_PROGRESS) {
+            synchronized (decisions) {
+                decisions.forEach((cardId, decisionsMap) -> decisionsMap.remove(id));
+            }
+        }
     }
 
     public Set<String> getPlayerIds() {
@@ -88,6 +105,14 @@ public class Room {
 
     public List<String> getPlayerSessions() {
         return players.values().stream().map(Player::getSession).collect(Collectors.toList());
+    }
+
+    public String getPlayerIdBySession(String session) {
+        Player player = players.values().stream()
+                .filter(p -> p.getSession().equals(session))
+                .findAny()
+                .orElse(null);
+        return player == null ? null : player.getId();
     }
 
     public Player getPlayer(String id) {
@@ -137,11 +162,17 @@ public class Room {
         if (state == GameState.FINISHED) {
             return true;
         }
-        if (finishedPlayersIds.size() == players.size()) {
-            state = GameState.FINISHED;
-            return true;
-        }
+        // if (finishedPlayersIds.size() == players.size()) {
+        // state = GameState.FINISHED;
+        // return true;
+        // }
         synchronized (decisions) {
+            boolean cardsLeft = decisions.entrySet().stream()
+                    .anyMatch(entry -> !entry.getValue().containsValue(Decision.NOT_OK));
+            if (!cardsLeft) {
+                state = GameState.FINISHED;
+                return true;
+            }
             String selectedCardId = decisions.entrySet().stream()
                     .filter(entry -> entry.getValue().size() >= players.size())
                     .filter(entry -> entry.getValue().values().stream().allMatch(val -> val == Decision.OK))
@@ -174,8 +205,9 @@ public class Room {
                 return null;
             }
             // check for oks from other players
-            //I wrote this at 2pm and wanted to get some result to show to my friends tomorrow so
-            //TODO refactor
+            // I wrote this at 2pm and wanted to get some result to show to my friends
+            // tomorrow so
+            // TODO refactor
             Card priorityCard = deck.stream()
                     .filter(card -> likedByOtherPlayer(playerId, decisions.get(card.id())))
                     .findAny().orElse(null);

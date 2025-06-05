@@ -55,7 +55,7 @@ public class RoomsController {
     public RoomResponse createRoom(@RequestBody RoomCreateRequest request) throws IOException, InvalidInputException {
         List<Card> list = getCardsFromResource(restsInput);
         Room room = roomService.createRoom(request.name(), list);
-        return new RoomResponse(room.getId(), room.getName());
+        return new RoomResponse(room.getId(), room.getName(), room.getState());
     }
 
     @PostMapping("/create/boardgames")
@@ -71,7 +71,7 @@ public class RoomsController {
         }
         //TODO error handle
         Room room = roomService.createRoom(request.name(), cards);
-        return new RoomResponse(room.getId(), room.getName());
+        return new RoomResponse(room.getId(), room.getName(), room.getState());
     }
 
     @GetMapping
@@ -85,7 +85,7 @@ public class RoomsController {
         if (room == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("No room with id %s", id));
         }
-        return new RoomResponse(room.getId(), room.getName());
+        return new RoomResponse(room.getId(), room.getName(), room.getState());
     }
 
     private List<Card> getCardsFromResource(Resource resource) throws IOException {

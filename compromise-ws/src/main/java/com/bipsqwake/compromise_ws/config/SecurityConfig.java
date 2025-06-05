@@ -1,6 +1,5 @@
 package com.bipsqwake.compromise_ws.config;
 
-import java.beans.Customizer;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Value;

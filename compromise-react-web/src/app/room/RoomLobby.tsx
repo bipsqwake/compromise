@@ -2,7 +2,7 @@ import { useStompClient } from "react-stomp-hooks";
 import { RoomInfoContext } from "../routes/Room";
 import { useContext } from "react";
 
-export default function RoomLobby({ playersList }: { playersList: string[] }) {
+export default function RoomLobby({ playersList, admin }: { playersList: string[], admin: boolean }) {
     const url = window.location.href;
     const stompClient = useStompClient();
     const { roomInfo } = useContext(RoomInfoContext);
@@ -39,9 +39,16 @@ export default function RoomLobby({ playersList }: { playersList: string[] }) {
             </div>
             <img src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${url}`} alt="QR-код комнаты" className="qr-code" />
             <PlayersList list={playersList}/>
+            {
+            admin 
+            ? 
             <div className="start-button-container">
                 <a href="#" onClick={startRoom} role="button" className="primary start-button">Начать</a>
-            </div>
+            </div> 
+            :
+            ""
+            }
+            
         </section>
     );
 }

@@ -19,6 +19,7 @@ import com.bipsqwake.compromise_ws.message.status.StatusMessage.Status;
 import com.bipsqwake.compromise_ws.room.Card;
 import com.bipsqwake.compromise_ws.room.Decision;
 import com.bipsqwake.compromise_ws.room.GameState;
+import com.bipsqwake.compromise_ws.room.Player;
 import com.bipsqwake.compromise_ws.room.Room;
 import com.bipsqwake.compromise_ws.room.exception.RoomException;
 
@@ -31,6 +32,7 @@ public class RoomService {
     private static final String PLAYERS_DESTINATION = "/topic/room/%s/players";
     private static final String STATUS_DESTINATION = "/topic/room/%s/status";
     private static final String CARDS_DESTINATION = "/queue/cards";
+    private static final String ADMIN_NOTIFICATION_DESTINATION = "/queue/admin";
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -63,10 +65,83 @@ public class RoomService {
         synchronized (room) {
             id = room.addPlayer(playerName, playerSession);
             List<String> playersNames = room.getPlayerNames();
+            if (room.getPlayerIds().size() == 1) {
+                room.setAdminId(id);
+                messagingTemplate.convertAndSendToUser(playerSession, ADMIN_NOTIFICATION_DESTINATION,
+                        "{\"admin\": true}",
+                        createHeaders(playerSession));
+            }
             messagingTemplate.convertAndSend(String.format(PLAYERS_DESTINATION, roomId),
                     new PlayersResponse(Action.CONNECTED, playerName, playersNames));
         }
         return id;
+    }
+
+    public void removePlayerFromRoomsBySession(String sessionId) throws RoomException {
+        List<Room> roomsToRemoveUser;
+        synchronized (rooms) {
+            roomsToRemoveUser = rooms.values().stream()
+                    .filter(room -> room.getPlayerSessions().contains(sessionId))
+                    .toList();
+        }
+        for (Room room: roomsToRemoveUser) {
+            removePlayerFromRoomBySession(sessionId, room.getId());
+        }
+    }
+
+    public void removePlayerFromRoomBySession(String sessionId, String roomId) throws RoomException {
+        if (sessionId == null) {
+            throw new RoomException("Invalid session ID");
+        }
+        if (roomId == null) {
+            throw new RoomException("Invalid room id format");
+        }
+        Room room = rooms.get(roomId);
+        if (room == null) {
+            throw new RoomException(String.format("No room with id %s", roomId));
+        }
+        removePlayerFromRoom(room.getPlayerIdBySession(sessionId), roomId);
+    }
+
+    public void removePlayerFromRoom(String playerId, String roomId) throws RoomException {
+        if (playerId == null) {
+            throw new RoomException("Invalid player ID");
+        }
+        if (roomId == null) {
+            throw new RoomException("Invalid room id format");
+        }
+        Room room = rooms.get(roomId);
+        if (room == null) {
+            throw new RoomException(String.format("No room with id %s", roomId));
+        }
+        synchronized (room) {
+            // check if user is admin
+            boolean needToChangeAdmin = playerId.equals(room.getAdminId());
+
+            // remove player from room
+            Player playerToRemove = room.getPlayer(playerId);
+            if (playerToRemove == null) {
+                throw new RoomException(String.format("No player with id %s to remove", playerId));
+            }
+            room.removePlayer(playerId);
+
+            // notify about disconnect
+            List<String> playersNames = room.getPlayerNames();
+            messagingTemplate.convertAndSend(String.format(PLAYERS_DESTINATION, roomId),
+                    new PlayersResponse(Action.DISCONNECTED, playerToRemove.getName(), playersNames));
+
+            // setNewAdmin
+            if (needToChangeAdmin) {
+                String nextAdminId = room.getPlayerIds().stream().findFirst().orElse(null);
+                if (nextAdminId != null) {
+                    Player nextAdmin = room.getPlayer(nextAdminId);
+                    room.setAdminId(nextAdminId);
+                    messagingTemplate.convertAndSendToUser(nextAdmin.getSession(), ADMIN_NOTIFICATION_DESTINATION,
+                            "{\"admin\": true}",
+                            createHeaders(nextAdmin.getSession()));
+                }
+            }
+        }
     }
 
     public void startRoom(String roomId) throws RoomException {
@@ -85,7 +160,8 @@ public class RoomService {
                 return;
             }
             Map<String, List<Card>> startCards = room.start();
-            messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), new StatusMessage(Status.STARTED));
+            messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()),
+                    new StatusMessage(Status.STARTED));
             for (String playerSession : startCards.keySet()) {
                 for (Card card : startCards.get(playerSession)) {
                     log.info("Sending card {} to session {}", card.id(), playerSession);
@@ -138,7 +214,7 @@ public class RoomService {
         }
         Card selectedCard = room.getSelectedCard();
 
-        FinishMessage finishMessage =  selectedCard != null ? new FinishMessage(selectedCard) : new FinishMessage();
+        FinishMessage finishMessage = selectedCard != null ? new FinishMessage(selectedCard) : new FinishMessage();
         messagingTemplate.convertAndSend(String.format(STATUS_DESTINATION, room.getId()), finishMessage);
     }
 

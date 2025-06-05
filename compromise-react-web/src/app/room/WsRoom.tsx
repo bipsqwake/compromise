@@ -1,20 +1,21 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { useStompClient } from "react-stomp-hooks";
 import type { Card } from "../../types/ws/Card";
+import type { Decision } from "../../types/ws/DecisionMessage";
+import type { PlayerStatusMessage } from "../../types/ws/PlayersStatusMessage";
 import type { FinishMessage } from "../../types/ws/StatusMessage";
+import RoomImage from "../components/RoomImage";
 import { RoomInfoContext } from "../routes/Room";
 import RoomCard from "./RoomCard";
 import RoomLobby from "./RoomLobby";
-import type { Decision } from "../../types/ws/DecisionMessage";
-import RoomSelectedCard from "./RoomSelectedCard";
-import type { PlayerStatusMessage } from "../../types/ws/PlayersStatusMessage";
-import RoomImage from "../components/RoomImage";
-import RoomNoSelectedCard from "./RoomNoSelectedCard";
+import Stub from "./Stub";
+import toast from "react-hot-toast";
 
 export default function WsRoom() {
     const { roomInfo, setRoomInfo } = useContext(RoomInfoContext);
     const stompClient = useStompClient();
 
+    const [isAdmin, setIsAdmin] = useState(false);
     const [playersList, setPlayersList] = useState([""]);
     const [currentCard, setCurrentCard] = useState<Card[] | undefined>(undefined);
     const selectedCard = useRef<Card | undefined>(undefined);
@@ -28,6 +29,8 @@ export default function WsRoom() {
             stompClient.subscribe(`/topic/room/${roomInfo.roomId}/players`, (message) => receivePlayers(JSON.parse(message.body) as PlayerStatusMessage))
             stompClient.subscribe(`/topic/room/${roomInfo.roomId}/status`, (message) => receiveStatus(JSON.parse(message.body) as FinishMessage))
             stompClient.subscribe(`/user/queue/cards`, (message) => receiveCard(JSON.parse(message.body) as Card))
+            stompClient.subscribe(`/user/queue/admin`, () => receiveAdminStatus())
+            
             stompClient.publish({
                 destination: `/server/room/${roomInfo.roomId}/hello`,
                 body: JSON.stringify({ name: roomInfo.username }),
@@ -37,9 +40,22 @@ export default function WsRoom() {
         }
     }, [stompClient]);
 
+    function receiveAdminStatus() {
+        toast("Вы теперь админ!");
+        setIsAdmin(true);
+    }
+
     function receivePlayers(message: PlayerStatusMessage) {
-        if (stateRef.current == "LOBBY") {
+        if (message.action == "CONNECTED" && stateRef.current == "LOBBY") {
+            if (message.name !== roomInfo.username) {
+                toast(message.name + " присоединился(лась) к комнате");
+            }
             setPlayersList(message.playerNames);
+        } else if (message.action == "DISCONNECTED") {
+            toast(message.name + " покинул(а) нас");
+            if (stateRef.current == "LOBBY") {
+                setPlayersList(message.playerNames);
+            }
         }
     }
 
@@ -81,7 +97,7 @@ export default function WsRoom() {
 
 
     if (roomInfo.state == "LOBBY") {
-        return <RoomLobby playersList={playersList} />
+        return <RoomLobby playersList={playersList} admin={isAdmin} />
     } else if (roomInfo.state == "PROCESS") {
         console.log("Checking card " + currentCard)
         if (currentCard != undefined && currentCard.length > 0) {
@@ -101,7 +117,7 @@ export default function WsRoom() {
         } else {
             return (
                 <div className="process-container">
-                    <RoomImage url={"https://cool-pictures.su/wp-content/uploads/2019/04/15/213634885.gif"} />
+                    <RoomImage url={"/img/dancing-rat.gif"} />
                     <section className="card-container">
                         Ой... Карточки закончились. Ждём остальных участников
                     </section>   
@@ -110,8 +126,8 @@ export default function WsRoom() {
         }
     } else if (roomInfo.state == "FINISH" && selectedCard.current) {
         console.log("Finished " + selectedCard.current)
-        return <RoomSelectedCard card={selectedCard.current} />
+        return <Stub img={selectedCard.current.img} header={"Это мэтч!!!"} title={selectedCard.current.name} desc={selectedCard.current.description} />
     } else if (roomInfo.state == "FINISH_NO_CARD") {
-        return <RoomNoSelectedCard />
+        return <Stub img={"/img/horse.webp"} header={"Это не мэтч((("} title={"Кажется, вы не смогли прийти к общему решению"} desc={"Следующее обновление поможет найти новых друзей"} />
     }
 }
