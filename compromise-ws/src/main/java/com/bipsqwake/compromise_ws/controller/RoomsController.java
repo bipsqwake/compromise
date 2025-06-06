@@ -22,6 +22,7 @@ import com.bipsqwake.compromise_ws.message.RoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomResponse;
 import com.bipsqwake.compromise_ws.room.Card;
 import com.bipsqwake.compromise_ws.room.Room;
+import com.bipsqwake.compromise_ws.room.RoomStatus;
 import com.bipsqwake.compromise_ws.service.RoomService;
 import com.bipsqwake.compromise_ws.service.bggservice.BggService;
 import com.bipsqwake.compromise_ws.service.teseraservice.TeseraService;
@@ -75,8 +76,8 @@ public class RoomsController {
     }
 
     @GetMapping
-    public Set<String> getRoomsIds() {
-        return roomService.getRoomsIds();
+    public List<RoomStatus> getRooms() {
+        return roomService.getRoomsStatus();
     }
 
     @GetMapping("{id}")

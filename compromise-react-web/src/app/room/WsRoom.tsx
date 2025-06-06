@@ -3,6 +3,7 @@ import { useStompClient } from "react-stomp-hooks";
 import type { Card } from "../../types/ws/Card";
 import type { Decision } from "../../types/ws/DecisionMessage";
 import type { PlayerStatusMessage } from "../../types/ws/PlayersStatusMessage";
+import type { RoomClosedMessage } from "../../types/ws/RoomClosedMessage.ts";
 import type { FinishMessage } from "../../types/ws/StatusMessage";
 import RoomImage from "../components/RoomImage";
 import { RoomInfoContext } from "../routes/Room";
@@ -28,8 +29,10 @@ export default function WsRoom() {
         if (stompClient && stompClient.connected) {
             stompClient.subscribe(`/topic/room/${roomInfo.roomId}/players`, (message) => receivePlayers(JSON.parse(message.body) as PlayerStatusMessage))
             stompClient.subscribe(`/topic/room/${roomInfo.roomId}/status`, (message) => receiveStatus(JSON.parse(message.body) as FinishMessage))
+            stompClient.subscribe(`/topic/room/${roomInfo.roomId}/close`, (message) => receiveRoomClosedStatus(JSON.parse(message.body) as RoomClosedMessage))
             stompClient.subscribe(`/user/queue/cards`, (message) => receiveCard(JSON.parse(message.body) as Card))
             stompClient.subscribe(`/user/queue/admin`, () => receiveAdminStatus())
+            // stompClient.onWebSocketClose(() => receiveRoomClosedStatus({reason: "Disconnect"}))
             
             stompClient.publish({
                 destination: `/server/room/${roomInfo.roomId}/hello`,
@@ -39,6 +42,11 @@ export default function WsRoom() {
             }
         }
     }, [stompClient]);
+
+    function receiveRoomClosedStatus(message: RoomClosedMessage) {
+        console.log("Room closed. Reason " + message.reason)
+        setRoomInfo({ ...roomInfo, state: "CLOSED" });
+    }
 
     function receiveAdminStatus() {
         toast("Вы теперь админ!");

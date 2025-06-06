@@ -1,5 +1,6 @@
 package com.bipsqwake.compromise_ws.room;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -32,6 +33,7 @@ public class Room {
     private GameState state = GameState.PREPARE;
     private Card selectedCard = null;
     private String adminId;
+    private volatile LocalDateTime lastUsed;
     // tools
     private static final Random random = new Random();
 
@@ -40,7 +42,18 @@ public class Room {
         this.id = UUID.randomUUID().toString();
         this.cards = cards;
         this.decisions = new ConcurrentSkipListMap<>();
+        this.lastUsed = LocalDateTime.now();
         cards.forEach(card -> decisions.put(card.id(), new HashMap<>()));
+    }
+
+    //last used
+
+    public void setLastUsed(LocalDateTime lastUsed) {
+        this.lastUsed = lastUsed;
+    }
+
+    public LocalDateTime getLastUsed() {
+        return lastUsed;
     }
 
     // basic getters
@@ -57,8 +70,11 @@ public class Room {
         return name;
     }
 
-    // player adders/removers
+    public RoomStatus getStatus() {
+        return new RoomStatus(id, state, name, lastUsed, players.values().stream().toList());
+    }
 
+    // player adders/removers
     public String addPlayer(String name, String session) throws RoomException {
         if (state != GameState.PREPARE) {
             log.error("Failed to add player $s: invalid game state", name);
@@ -68,6 +84,8 @@ public class Room {
             log.error("Failed to add player $s: Exceeded max players", name);
             throw new RoomException("Already have max players");
         }
+        updateLastUsed();
+
         String playerId = UUID.randomUUID().toString();
         players.put(playerId, new Player(playerId, session, name));
         log.info("Added player {} with id {}", name, playerId);
@@ -87,6 +105,7 @@ public class Room {
         if (!isPlayerPresent(id)) {
             return;
         }
+        updateLastUsed();
         players.remove(id);
         if (state == GameState.IN_PROGRESS) {
             synchronized (decisions) {
@@ -125,6 +144,7 @@ public class Room {
         if (state != GameState.PREPARE) {
             throw new RoomException("Game should be in PREPARE state to start");
         }
+        updateLastUsed();
         state = GameState.IN_PROGRESS;
         Map<String, List<Card>> result = new HashMap<>();
         for (String playerId : players.keySet()) {
@@ -145,6 +165,7 @@ public class Room {
         if (!isPlayerPresent(playerId)) {
             throw new RoomException(String.format("Player %s is not present in game", playerId));
         }
+        updateLastUsed();
         synchronized (decisions) {
             Map<String, Decision> cardDecisions = decisions.get(cardId);
             cardDecisions.put(playerId, decision);
@@ -166,6 +187,7 @@ public class Room {
         // state = GameState.FINISHED;
         // return true;
         // }
+        updateLastUsed();
         synchronized (decisions) {
             boolean cardsLeft = decisions.entrySet().stream()
                     .anyMatch(entry -> !entry.getValue().containsValue(Decision.NOT_OK));
@@ -195,6 +217,7 @@ public class Room {
         if (!isPlayerPresent(playerId)) {
             throw new RoomException(String.format("Player %s is not present in game", playerId));
         }
+        updateLastUsed();
         List<Card> deck;
         synchronized (decisions) {
             deck = cards.stream()
@@ -229,6 +252,7 @@ public class Room {
             throw new RoomException(String.format("Player %s not requested in game", playerId));
         }
         List<Card> deck;
+        updateLastUsed();
         synchronized (decisions) {
             deck = cards.stream()
                     .filter(Objects::nonNull)
@@ -268,5 +292,9 @@ public class Room {
 
     private boolean isPlayerPresent(String playerId) {
         return players.containsKey(playerId);
+    }
+
+    private void updateLastUsed() {
+        this.lastUsed = LocalDateTime.now();
     }
 }

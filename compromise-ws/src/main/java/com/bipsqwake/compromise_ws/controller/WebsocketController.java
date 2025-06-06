@@ -62,7 +62,8 @@ public class WebsocketController {
     @MessageExceptionHandler
     @SendToUser("/queue/errors")
     public String handleException(Throwable exception) {
-        exception.printStackTrace();
+        // exception.printStackTrace();
+        log.warn(exception.getMessage());
         return exception.getMessage();
     }
 }

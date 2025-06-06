@@ -1,5 +1,7 @@
 package com.bipsqwake.compromise_ws.service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,8 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.bipsqwake.compromise_ws.message.CloseRoomMesssage;
 import com.bipsqwake.compromise_ws.message.PlayersResponse;
 import com.bipsqwake.compromise_ws.message.PlayersResponse.Action;
 import com.bipsqwake.compromise_ws.message.status.FinishMessage;
@@ -21,6 +25,7 @@ import com.bipsqwake.compromise_ws.room.Decision;
 import com.bipsqwake.compromise_ws.room.GameState;
 import com.bipsqwake.compromise_ws.room.Player;
 import com.bipsqwake.compromise_ws.room.Room;
+import com.bipsqwake.compromise_ws.room.RoomStatus;
 import com.bipsqwake.compromise_ws.room.exception.RoomException;
 
 import lombok.extern.slf4j.Slf4j;
@@ -31,8 +36,12 @@ public class RoomService {
 
     private static final String PLAYERS_DESTINATION = "/topic/room/%s/players";
     private static final String STATUS_DESTINATION = "/topic/room/%s/status";
-    private static final String CARDS_DESTINATION = "/queue/cards";
-    private static final String ADMIN_NOTIFICATION_DESTINATION = "/queue/admin";
+    private static final String CARDS_USER_DESTINATION = "/queue/cards";
+    private static final String ADMIN_NOTIFICATION_USER_DESTINATION = "/queue/admin";
+    private static final String CLOSE_CONNECTION_DESTINATION = "topic/room/%s/close";
+
+    private static final long ALIVE_ROOM_TIMEOUT = 5;
+    private static final long DEAD_ROOM_TIMEOUT = 1;
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -53,6 +62,10 @@ public class RoomService {
         return rooms.keySet();
     }
 
+    public List<RoomStatus> getRoomsStatus() {
+        return rooms.values().stream().map(Room::getStatus).toList();
+    }
+
     public String addPlayerToRoom(String roomId, String playerName, String playerSession) throws RoomException {
         if (roomId == null) {
             throw new RoomException("Invalid room id format");
@@ -67,7 +80,7 @@ public class RoomService {
             List<String> playersNames = room.getPlayerNames();
             if (room.getPlayerIds().size() == 1) {
                 room.setAdminId(id);
-                messagingTemplate.convertAndSendToUser(playerSession, ADMIN_NOTIFICATION_DESTINATION,
+                messagingTemplate.convertAndSendToUser(playerSession, ADMIN_NOTIFICATION_USER_DESTINATION,
                         "{\"admin\": true}",
                         createHeaders(playerSession));
             }
@@ -84,7 +97,7 @@ public class RoomService {
                     .filter(room -> room.getPlayerSessions().contains(sessionId))
                     .toList();
         }
-        for (Room room: roomsToRemoveUser) {
+        for (Room room : roomsToRemoveUser) {
             removePlayerFromRoomBySession(sessionId, room.getId());
         }
     }
@@ -121,7 +134,8 @@ public class RoomService {
             // remove player from room
             Player playerToRemove = room.getPlayer(playerId);
             if (playerToRemove == null) {
-                throw new RoomException(String.format("No player with id %s to remove", playerId));
+                log.info("No player with id %s to remove", playerId);
+                return;
             }
             room.removePlayer(playerId);
 
@@ -136,7 +150,7 @@ public class RoomService {
                 if (nextAdminId != null) {
                     Player nextAdmin = room.getPlayer(nextAdminId);
                     room.setAdminId(nextAdminId);
-                    messagingTemplate.convertAndSendToUser(nextAdmin.getSession(), ADMIN_NOTIFICATION_DESTINATION,
+                    messagingTemplate.convertAndSendToUser(nextAdmin.getSession(), ADMIN_NOTIFICATION_USER_DESTINATION,
                             "{\"admin\": true}",
                             createHeaders(nextAdmin.getSession()));
                 }
@@ -165,7 +179,7 @@ public class RoomService {
             for (String playerSession : startCards.keySet()) {
                 for (Card card : startCards.get(playerSession)) {
                     log.info("Sending card {} to session {}", card.id(), playerSession);
-                    messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, card,
+                    messagingTemplate.convertAndSendToUser(playerSession, CARDS_USER_DESTINATION, card,
                             createHeaders(playerSession));
                 }
             }
@@ -200,7 +214,7 @@ public class RoomService {
                 }
                 String playerSession = room.getPlayer(playerId).getSession();
                 log.info("Sending card {} to session {}", nextCard.id(), playerSession);
-                messagingTemplate.convertAndSendToUser(playerSession, CARDS_DESTINATION, nextCard,
+                messagingTemplate.convertAndSendToUser(playerSession, CARDS_USER_DESTINATION, nextCard,
                         createHeaders(playerSession));
             } else {
                 processFinish(room);
@@ -223,5 +237,33 @@ public class RoomService {
         headerAccessor.setSessionId(sessionId);
         headerAccessor.setLeaveMutable(true);
         return headerAccessor.getMessageHeaders();
+    }
+
+    // rooms clean out
+    @Scheduled(fixedDelayString = "${appconfig.clean-period}")
+    public void clean() {
+        List<Room> toRemove = rooms.values().stream()
+                .filter(RoomService::needToRemove)
+                .toList();
+        toRemove.forEach(room -> {
+            notifyRoomClosed(room, "Timeout");
+            rooms.remove(room.getId());
+        });
+    }
+
+    private void notifyRoomClosed(Room room, String reason) {
+        if (room == null) {
+            return;
+        }
+        CloseRoomMesssage message = new CloseRoomMesssage(reason);
+        messagingTemplate.convertAndSend(String.format(CLOSE_CONNECTION_DESTINATION, room.getId()), message);
+    }
+
+    private static boolean needToRemove(Room room) {
+        long diff = room.getLastUsed().until(LocalDateTime.now(), ChronoUnit.MINUTES);
+        log.info("Room {}:{} is stale for {} minutes", room.getId(), room.getName(), diff);
+        return (diff > ALIVE_ROOM_TIMEOUT)
+                || (diff > DEAD_ROOM_TIMEOUT
+                        && (room.getState() == GameState.FINISHED || room.getPlayerIds().isEmpty()));
     }
 }
