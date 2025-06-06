@@ -4,10 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import com.bipsqwake.compromise_ws.exception.InvalidInputException;
@@ -19,47 +17,32 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BggService {
 
-    private final RestClient restClient;
-
-    public BggService(RestClient.Builder restClientBuilder) {
-
-        this.restClient = restClientBuilder
-                .baseUrl("https://boardgamegeek.com/xmlapi2")
-                .messageConverters(converters -> {
-                    Jaxb2RootElementHttpMessageConverter converter = new Jaxb2RootElementHttpMessageConverter();
-                    converter.setSupportedMediaTypes(List.of(MediaType.APPLICATION_XML, MediaType.TEXT_XML));
-                    converters.add(converter);
-                })
-                .build();
-    }
+    @Autowired
+    BggExtractor bggExtractor;
 
     public List<Card> getCardsFromCollection(String username, int playersNum) throws InvalidInputException {
-        log.info(username);
         BggBoardGameList bgList;
         try {
-            bgList = restClient
-                .get()
-                .uri("/collection?username=" + username)
-                .retrieve()
-                .body(BggBoardGameList.class);
+            bgList = bggExtractor.extractList(username);
         } catch (RestClientException e) {
-            log.info("Failed to extract list of games from user " + username);
-            throw new InvalidInputException("Failed to get list");
+            log.warn("Failed to extract bgg list: {}", e.getMessage());
+            throw new InvalidInputException("Failed to extract BGG list");
         }
-        
-        return bggListToCards(bgList);
+        return bggListToCards(bgList, playersNum);
     }
 
-    private List<Card> bggListToCards(BggBoardGameList list) {
-        return list.getGames().stream().map(BggService::bggGameToCard).collect(Collectors.toList());
+    private List<Card> bggListToCards(BggBoardGameList list, int playersNum) {
+        return list.getGames().stream()
+                .filter(game -> game.isSuitableForPlayersNum(playersNum))
+                .map(BggService::bggGameToCard)
+                .collect(Collectors.toList());
     }
 
     static private Card bggGameToCard(BggBoardGame game) {
         return new Card(
-            UUID.randomUUID().toString(),
-            game.getName(),
-            game.getOriginalName(),
-            game.getImage()
-        );
+                UUID.randomUUID().toString(),
+                game.getName(),
+                game.getOriginalName(),
+                game.getImage());
     }
 }

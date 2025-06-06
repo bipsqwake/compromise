@@ -45,7 +45,6 @@ public class RoomTest {
             String[] decision = current.decision();
             if (decision == null) {
                 log.info("Player {}:{} finished cards", current.getId(), current.getName());
-                room.markPlayerAsFinished(current.getId());
                 continue;
             }
             log.info("Client: Player {} decided that {} is {}", current.getName(), decision[0], decision[1]);

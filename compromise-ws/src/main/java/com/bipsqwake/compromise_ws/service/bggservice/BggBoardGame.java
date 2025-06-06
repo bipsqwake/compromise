@@ -24,6 +24,8 @@ public class BggBoardGame {
     @XmlElement
     private BggBoardGameStats stats;
 
-    
-
+    public boolean isSuitableForPlayersNum(int playersNum) {
+        return (playersNum >= stats.getMinPlayers() && playersNum <= stats.getMaxPlayers()) ||
+        (stats.getMinPlayers() == 0 && stats.getMaxPlayers() == 0);
+    }
 }

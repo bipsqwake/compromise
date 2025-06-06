@@ -8,3 +8,9 @@ appconfig:
   clean-period: 120000
   allowed-origins-pattern: "http://localhost:3000"
   allowed-methods: GET, POST, OPTIONS, DELETE
+resilience4j.ratelimiter:
+  instances:
+    teseraLimiter:
+      limit-for-period: 10
+      limit-refresh-period: 1s
+      timeout-duration: 5s

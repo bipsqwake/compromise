@@ -206,7 +206,6 @@ public class RoomService {
             if (!finished) {
                 Card nextCard = room.getNextCardForPlayer(playerId);
                 if (nextCard == null) {
-                    room.markPlayerAsFinished(playerId);
                     if (room.finishCheck()) {
                         processFinish(room);
                     }

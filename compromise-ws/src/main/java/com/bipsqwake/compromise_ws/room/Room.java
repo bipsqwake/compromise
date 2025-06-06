@@ -29,7 +29,7 @@ public class Room {
     // state
     private String name;
     private Map<String, Player> players = new ConcurrentSkipListMap<>();
-    private Set<String> finishedPlayersIds = new ConcurrentSkipListSet<>();
+    private Set<String> priorityCards = new ConcurrentSkipListSet<>();
     private GameState state = GameState.PREPARE;
     private Card selectedCard = null;
     private String adminId;
@@ -46,7 +46,7 @@ public class Room {
         cards.forEach(card -> decisions.put(card.id(), new HashMap<>()));
     }
 
-    //last used
+    // last used
 
     public void setLastUsed(LocalDateTime lastUsed) {
         this.lastUsed = lastUsed;
@@ -169,14 +169,17 @@ public class Room {
         synchronized (decisions) {
             Map<String, Decision> cardDecisions = decisions.get(cardId);
             cardDecisions.put(playerId, decision);
+            // priority update
+            if (decision == Decision.NOT_OK) {
+                priorityCards.remove(cardId);
+            }
+            if (decision == Decision.OK && !cardDecisions.values().contains(Decision.NOT_OK)) {
+                priorityCards.add(cardId);
+            }
             log.info("Player {}:{} decided that {}:{} is {}", playerId, players.get(playerId).getName(), cardId,
                     getCardById(cardId).name(), decision);
             log.info("Decision map {}", decisions);
         }
-    }
-
-    public void markPlayerAsFinished(String playerId) {
-        finishedPlayersIds.add(playerId);
     }
 
     public synchronized boolean finishCheck() {
@@ -218,33 +221,44 @@ public class Room {
             throw new RoomException(String.format("Player %s is not present in game", playerId));
         }
         updateLastUsed();
-        List<Card> deck;
+        
         synchronized (decisions) {
-            deck = cards.stream()
-                    .filter(card -> canShowCardToPlayer(playerId, decisions.get(card.id())))
-                    .filter(Objects::nonNull)
-                    .toList();
-            if (deck == null || deck.isEmpty()) {
+            Card nextCard = getNextPriorityCard(playerId);
+            if (nextCard == null) {
+                nextCard = getNextDefaultCard(playerId);
+            }
+            if (nextCard == null) {
                 return null;
             }
-            // check for oks from other players
-            // I wrote this at 2pm and wanted to get some result to show to my friends
-            // tomorrow so
-            // TODO refactor
-            Card priorityCard = deck.stream()
-                    .filter(card -> likedByOtherPlayer(playerId, decisions.get(card.id())))
-                    .findAny().orElse(null);
-            if (priorityCard != null) {
-                Map<String, Decision> cardDecisions = decisions.get(priorityCard.id());
-                cardDecisions.put(playerId, Decision.PENDING);
-                return priorityCard;
-            }
-            Card result = deck.get(random.nextInt(deck.size()));
-            Map<String, Decision> cardDecisions = decisions.get(result.id());
+            Map<String, Decision> cardDecisions = decisions.get(nextCard.id());
             cardDecisions.put(playerId, Decision.PENDING);
-            return result;
+            return nextCard;
         }
+    }
 
+    private Card getNextPriorityCard(String playerId) {
+        if (!priorityCards.isEmpty()) {
+            String priorityCardId = priorityCards.stream()
+                    .filter(id -> !decisions.get(id).containsKey(playerId))
+                    .findFirst().orElse(null);
+            if (priorityCardId != null) {
+                return getCardById(priorityCardId);
+            }
+        }
+        return null;
+    }
+
+    private Card getNextDefaultCard(String playerId) {
+        List<Card> deck;
+        deck = cards.stream()
+                .filter(card -> canShowCardToPlayer(playerId, decisions.get(card.id())))
+                .filter(Objects::nonNull)
+                .toList();
+        if (deck == null || deck.isEmpty()) {
+            return null;
+        }
+        Card result = deck.get(random.nextInt(deck.size()));
+        return result;
     }
 
     private List<Card> getInitialCards(String playerId) throws RoomException {
@@ -277,11 +291,6 @@ public class Room {
             return false;
         }
         return true;
-    }
-
-    private boolean likedByOtherPlayer(String playerId, Map<String, Decision> decisions) {
-        return decisions.entrySet().stream()
-                .anyMatch(entry -> !entry.getKey().equals(playerId) && entry.getValue() == Decision.OK);
     }
 
     // private

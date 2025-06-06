@@ -13,6 +13,8 @@ public class TeseraGame {
     @JsonProperty
     private String teseraId;
     @JsonProperty
+    private String alias;
+    @JsonProperty
     private String title;
     @JsonProperty 
     private String title2;
@@ -20,5 +22,13 @@ public class TeseraGame {
     private String descriptionShort;
     @JsonProperty
     private String photoUrl;
+    @JsonProperty
+    private int playersMin;
+    @JsonProperty
+    private int playersMax;
+
+    public boolean isSuitableForPlayersNum(int playersNum) {
+        return (playersNum >= playersMin && playersNum <= playersMax) || (playersMin == 0 && playersMax == 0);
+    }
 
 }
