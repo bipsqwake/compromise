@@ -1,10 +1,12 @@
-import axios, { type AxiosResponse } from "axios";
+import axios, { AxiosError, type AxiosResponse } from "axios";
 import { type CSSProperties } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { BeatLoader } from "react-spinners";
 import type { RoomCreateRequest } from "../../types/roomCreate/RoomCreateRequest";
 import type { RoomResponse } from "../../types/roomCreate/RoomCreateResponse";
+import { mapError } from "../../api/ErrorMapper";
+import type { ErrorMessage } from "../../types/ErrorMessage";
 
 type Inputs = {
     source: "BGG" | "TESERA",
@@ -18,7 +20,7 @@ export default function BgPrepare() {
         register,
         handleSubmit,
         getValues,
-        formState: { isSubmitting, isDirty, isValid, errors }
+        formState: { isSubmitting, errors }
     } = useForm<Inputs>()
 
 
@@ -29,9 +31,8 @@ export default function BgPrepare() {
             .then(function (response) {
                 const roomId = response.data.id
                 window.location.replace(`/rooms/${roomId}`)
-            }).catch(function (error) {
-                console.log(error);
-                toast("Ой, что-то пошло не так");
+            }).catch(function (error: AxiosError) {
+                toast(mapError(error.response?.data as ErrorMessage));
             });
     }
 
@@ -53,7 +54,7 @@ export default function BgPrepare() {
                 <label htmlFor="username">Имя пользователя:</label>
                 <input aria-invalid={errors.username ? "true" : undefined} {...register("username", { required: true })} />
                 <label htmlFor="players">Количество игроков:</label>
-                <input aria-invalid={errors.playersNum ? "true" : undefined} {...register("playersNum", { required: true })} />
+                <input aria-invalid={errors.playersNum ? "true" : undefined} type="number" {...register("playersNum", { required: true,  })} />
 
                 <button type="submit" disabled={isSubmitting}>Начать</button>
                 {isSubmitting ? <BeatLoader cssOverride={override} /> : ""}

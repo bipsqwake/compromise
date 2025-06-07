@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.bipsqwake.compromise_ws.exception.InvalidInputException;
+import com.bipsqwake.compromise_ws.exception.WebException;
 import com.bipsqwake.compromise_ws.message.BgRoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomResponse;
@@ -44,7 +45,7 @@ public class RoomsController {
     @Autowired
     private TeseraService teseraService;
 
-    @Value("classpath:/data/rests.json")
+    @Value("classpath:/data/food_options.json")
     private Resource restsInput;
 
     @Autowired
@@ -59,7 +60,10 @@ public class RoomsController {
     }
 
     @PostMapping("/create/boardgames")
-    public RoomResponse createBggRoom(@RequestBody BgRoomCreateRequest request) throws InvalidInputException {
+    public RoomResponse createBggRoom(@RequestBody BgRoomCreateRequest request) throws InvalidInputException, WebException {
+        if (!request.isValid()) {
+            throw WebException.invalidIput("Invalid bg room create request");
+        }
         List<Card> cards;
         switch (request.source()) {
             case BGG:
@@ -69,7 +73,9 @@ public class RoomsController {
                 cards = teseraService.getCardsFromCollection(request.username(), request.playersNum());
                 break;
         }
-        //TODO error handle
+        if (cards.size() <= 2) {
+            throw WebException.collectionTooSmall("Collection is too small to start voting");
+        }
         Room room = roomService.createRoom(request.name(), cards);
         return new RoomResponse(room.getId(), room.getName(), room.getState());
     }

@@ -1,6 +1,7 @@
 package com.bipsqwake.compromise_ws.service.bggservice;
 
 import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.Getter;
 import lombok.ToString;
@@ -17,4 +18,7 @@ public class BggBoardGameStats {
     private int minPlayTime;
     @XmlAttribute(name = "maxplaytime")
     private int maxPlayTime;
+    @XmlElement
+    private BggGameRating rating;
+
 }

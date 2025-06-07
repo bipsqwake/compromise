@@ -28,4 +28,8 @@ public class BggBoardGame {
         return (playersNum >= stats.getMinPlayers() && playersNum <= stats.getMaxPlayers()) ||
         (stats.getMinPlayers() == 0 && stats.getMaxPlayers() == 0);
     }
+
+    public String getRankDescription() {
+        return stats.getRating().getRanks();
+    }
 }

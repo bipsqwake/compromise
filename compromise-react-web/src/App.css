@@ -480,7 +480,6 @@ ul.participants li {
   font-weight: bold;
   color: #222;
   margin: 0;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -489,7 +488,6 @@ ul.participants li {
   font-size: 0.98rem;
   color: #555;
   margin: 4px 0 0 0;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }

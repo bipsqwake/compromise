@@ -1,0 +1,116 @@
+[
+  {
+    "id": "3f1c2d4e-2b5a-4a1e-8b7c-9d2e3f7a1b2c",
+    "name": "Пицца",
+    "description": "Маргарита, Пепперони, Четыре сыра, Гавайская, Вегетарианская",
+    "img": "/img/food/pizza.jpg"
+  },
+  {
+    "id": "4e2b6a1c-8d9f-4a2b-9e7d-1a3f5c8e2d1b",
+    "name": "Японская кухня",
+    "description": "Суши, Роллы, Сашими, Рамен, Темпура",
+    "img": "/img/food/sushi.jpg"
+  },
+  {
+    "id": "2a5d3e4b-7c8f-4d2e-9b0a-6d3e1a8c2b5f",
+    "name": "Бургеры",
+    "description": "Чизбургер, Беконбургер, Веганский бургер, Двойной бургер",
+    "img": "/img/food/burger.jpg"
+  },
+  {
+    "id": "8b2c4d7e-1a6f-4e2b-8d5c-3a9f7d2e5c1b",
+    "name": "Грузинская кухня",
+    "description": "Хачапури, Хинкали, Лобио, Чахохбили, Шашлык",
+    "img": "/img/food/hinkali.jpg"
+  },
+  {
+    "id": "7e3b1a4c-2d5f-4a8b-9e0c-1b2d7e6a3f4c",
+    "name": "Китайская кухня",
+    "description": "Димсам, Утка по-пекински, Бао, Курица генерала Цо, Кисло-сладкая свинина",
+    "img": "/img/food/china.jpg"
+  },
+  {
+    "id": "2c9e5b1a-7f3d-4e8b-9c0a-6d2e4a7c1b5f",
+    "name": "Вок",
+    "description": "Лапша с курицей, Лапша с овощами, Удон, Пад Тай, Рис с морепродуктами",
+    "img": "/img/food/wok.jpg"
+  },
+  {
+    "id": "6d1e3a4b-8b7c-4f2a-9d0e-2a5b7e4c3f6a",
+    "name": "Фастфуд",
+    "description": "Хот-доги, Картофель фри, Наггетсы, Крылышки, Луковые кольца",
+    "img": "/img/food/fastfood.jpg"
+  },
+  {
+    "id": "3a6e2d1b-7c4f-4e8b-9a0c-2d1e7a5b3c6f",
+    "name": "Паста",
+    "description": "Карбонара, Болоньезе, Альфредо, Песто, Лазанья",
+    "img": "/img/food/pasta.jpg"
+  },
+  {
+    "id": "5c8d1a2e-7f4b-4e6c-9d0a-3b2e8a1f5c7d",
+    "name": "Вафли",
+    "description": "Бельгийские вафли, Хрустящие вафли, Сладкие и солёные вафли",
+    "img": "/img/food/waffels.jpg"
+  },
+  {
+    "id": "1d3e7a5b-2c6f-4e8b-9a0c-7b3d1e4a5f2c",
+    "name": "Пироги",
+    "description": "С мясом, с капустой, с ягодами, с картошкой, сладкие пироги",
+    "img": "/img/food/pie.jpg"
+  },
+  {
+    "id": "8f2a1b3c-7e4d-4e5b-9d0a-2c3e7a5b1d4f",
+    "name": "Индийская кухня",
+    "description": "Карри, Тикка масала, Самоса, Наан, Дал",
+    "img": "/img/food/india.jpg"
+  },
+  {
+    "id": "9c5d3e2a-7b4f-4e8b-9a0c-1f2e3a7b5c6d",
+    "name": "Шаурма/Сэндвичи",
+    "description": "Классическая шаурма, Донер, Клаб-сэндвич, Панини, Сэндвич с курицей",
+    "img": "/img/food/sandwich.jpg"
+  },
+  {
+    "id": "2e4d7a1b-6c5f-4e8b-9d0a-3f2e8a1c5b7d",
+    "name": "Тако",
+    "description": "Традиционный тако, Тако с курицей, Тако с рыбой, Вегетарианский тако",
+    "img": "/img/food/taco.jpg"
+  },
+  {
+    "id": "7a3c2d1e-8b4f-4e8b-9a0c-2e1f3a5b7c6d",
+    "name": "Поке",
+    "description": "Поке с лососем, с тунцом, с креветками, овощной поке",
+    "img": "/img/food/poke.jpg"
+  },
+  {
+    "id": "4b8c7d1e-2a5f-4e8b-9d0a-3c2e7a5b1f6d",
+    "name": "Чебуреки",
+    "description": "С мясом, с сыром, с картошкой, острые чебуреки",
+    "img": "/img/food/cheburek.jpg"
+  },
+  {
+    "id": "5e1d2a3b-7c8f-4e8b-9d0a-2b3e7a5c1d4f",
+    "name": "Пельмени/Вареники",
+    "description": "Пельмени с мясом, Вареники с картошкой, с вишней, с творогом",
+    "img": "/img/food/dumplings.jpg"
+  },
+  {
+    "id": "6b9d1e3a-2c5f-4e8b-9a0c-7d3e1a5b4c2f",
+    "name": "Корейская кухня",
+    "description": "Кимчи, Бибимбап, Кимбап, Чапче, Пулькоги",
+    "img": "/img/food/korea.jpg"
+  },
+  {
+    "id": "7d2a3e1b-4c5f-4e8b-9a0c-3b2e8a1d5c7f",
+    "name": "Греческая кухня",
+    "description": "Греческий салат, Мусака, Сувлаки, Пита, Тзатзики",
+    "img": "/img/food/greece.jpg"
+  },
+  {
+    "id": "8f1c2a3e-7b4d-4e8b-9d0a-2c3e7a5b1d6f",
+    "name": "Израильская кухня",
+    "description": "Хумус, Фалафель, Шакшука, Сабих, Пита",
+    "img": "/img/food/israel.jpg"
+  }
+]

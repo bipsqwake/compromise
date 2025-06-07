@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 
 import com.bipsqwake.compromise_ws.exception.InvalidInputException;
+import com.bipsqwake.compromise_ws.exception.WebException;
 import com.bipsqwake.compromise_ws.room.Card;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,13 +21,13 @@ public class BggService {
     @Autowired
     BggExtractor bggExtractor;
 
-    public List<Card> getCardsFromCollection(String username, int playersNum) throws InvalidInputException {
+    public List<Card> getCardsFromCollection(String username, int playersNum) throws InvalidInputException, WebException {
         BggBoardGameList bgList;
         try {
             bgList = bggExtractor.extractList(username);
         } catch (RestClientException e) {
             log.warn("Failed to extract bgg list: {}", e.getMessage());
-            throw new InvalidInputException("Failed to extract BGG list");
+            throw WebException.extractionFailed(String.format("Failed to extract collection of %s", username));
         }
         return bggListToCards(bgList, playersNum);
     }
@@ -42,7 +43,7 @@ public class BggService {
         return new Card(
                 UUID.randomUUID().toString(),
                 game.getName(),
-                game.getOriginalName(),
+                game.getRankDescription(),
                 game.getImage());
     }
 }

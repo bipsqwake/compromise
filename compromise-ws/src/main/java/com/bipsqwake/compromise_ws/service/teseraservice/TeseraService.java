@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
 import com.bipsqwake.compromise_ws.exception.InvalidInputException;
+import com.bipsqwake.compromise_ws.exception.WebException;
 import com.bipsqwake.compromise_ws.room.Card;
 
 import lombok.extern.slf4j.Slf4j;
@@ -23,21 +24,24 @@ public class TeseraService {
     @Autowired
     TeseraExtractor teseraExtractor;
 
-    public List<Card> getCardsFromCollection(String username, int playersNum) throws InvalidInputException {
+    public List<Card> getCardsFromCollection(String username, int playersNum)
+            throws InvalidInputException, WebException {
         List<TeseraGame> result = new LinkedList<>();
         List<TeseraGameCard> tmp;
         int page = 0;
         try {
+            //extract full collection with less stats
             do {
                 tmp = teseraExtractor.extractGames(username, page++);
                 result.addAll(tmp.stream().map(TeseraGameCard::getGame).toList());
             } while (!tmp.isEmpty());
+            //enrich with stats (playersNum)
+            return teseraListToCardList(result.stream()
+                    .map(game -> teseraExtractor.getFullCard(game).getGame())
+                    .toList(), playersNum);
         } catch (RestClientException e) {
-            throw new InvalidInputException("Failed to extract Tesera list");
+            throw WebException.extractionFailed(String.format("Failed to extract tesera collection  of %s", username));
         }
-        return teseraListToCardList(result.stream()
-                .map(game -> teseraExtractor.getFullCard(game).getGame())
-                .toList(), playersNum);
     }
 
     private static List<Card> teseraListToCardList(List<TeseraGame> list, int playersNum) {
@@ -51,7 +55,7 @@ public class TeseraService {
         return new Card(
                 UUID.randomUUID().toString(),
                 game.getTitle(),
-                game.getDescriptionShort(),
+                "Bgg: " + game.getBggRating(),
                 game.getPhotoUrl());
     }
 }

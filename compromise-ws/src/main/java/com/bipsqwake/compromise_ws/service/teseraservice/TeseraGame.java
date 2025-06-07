@@ -26,6 +26,8 @@ public class TeseraGame {
     private int playersMin;
     @JsonProperty
     private int playersMax;
+    @JsonProperty
+    private float bggRating;
 
     public boolean isSuitableForPlayersNum(int playersNum) {
         return (playersNum >= playersMin && playersNum <= playersMax) || (playersMin == 0 && playersMax == 0);
