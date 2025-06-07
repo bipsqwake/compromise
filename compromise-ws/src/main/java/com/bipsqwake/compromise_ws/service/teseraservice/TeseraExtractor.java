@@ -1,8 +1,6 @@
 package com.bipsqwake.compromise_ws.service.teseraservice;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.retry.annotation.Backoff;

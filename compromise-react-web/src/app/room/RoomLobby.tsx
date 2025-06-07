@@ -43,7 +43,7 @@ export default function RoomLobby({ playersList, admin }: { playersList: string[
             admin 
             ? 
             <div className="start-button-container">
-                <a href="#" onClick={startRoom} role="button" className="primary start-button">Начать</a>
+                <button onClick={startRoom} role="button" className="primary start-button" disabled={playersList.length < 2}>Начать</button>
             </div> 
             :
             ""

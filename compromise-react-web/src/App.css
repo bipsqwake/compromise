@@ -426,6 +426,7 @@ ul.participants li {
 
 .start-button {
   margin-top: 2rem;
+  width: 200px;
 }
 
 .card-container {
