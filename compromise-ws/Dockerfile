@@ -15,8 +15,6 @@ USER spring:spring
 
 EXPOSE 8081
 
-# Используем переменную окружения SPRING_PROFILES_ACTIVE (по умолчанию 'default')
 ENV SPRING_PROFILES_ACTIVE=default
 
-# Позволяем пробрасывать дополнительные параметры через CMD/ENTRYPOINT
 ENTRYPOINT ["sh", "-c", "java -jar app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} $@"]

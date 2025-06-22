@@ -6,14 +6,21 @@ services:
       args:
         VITE_MODE: ${VITE_MODE}
 
-    ports:
-      - "80:80"
+    expose:
+      - "80"
+    networks:
+      - bipsqwake-network
   api:
     container_name: compromise-ws
     build:
       context: ./compromise-ws
     environment:
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-    ports:
-      - "8081:8081"
+      SPRING_PROFILES_ACTIVE: ${SPRING_API_PROFILES_ACTIVE}
+    expose:
+      - "8081"
+    networks:
+      - bipsqwake-network
+networks:
+  bipsqwake-network:
+    external: true
     

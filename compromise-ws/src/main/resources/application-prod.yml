@@ -2,4 +2,8 @@
 #   level:
 #     root: DEBUG
 appconfig:
-  allowed-origins-pattern: "http://synkro.bipsqwake.ru"
+  allowed-origins-pattern: "https://synkro.bipsqwake.ru"
+eureka:
+  client:
+    service-url:
+      defaultZone: http://compromise-discovery:8761/eureka/
