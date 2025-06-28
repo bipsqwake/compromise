@@ -1,0 +1,94 @@
+/* --- Стили фильтров фильмов/сериалов внутри .connect-container --- */
+
+.connect-container form {
+  max-width: 500px;
+  margin: 44px auto 0 auto;
+}
+
+.connect-container details {
+  margin-bottom: 1.1rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(80, 80, 120, 0.06);
+  padding: 0.5em 0.7em;
+}
+
+.connect-container summary {
+  font-size: 1.08em;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.8em 0.2em 0.8em 0.2em;
+}
+
+.connect-container .exclude-switch {
+  font-size: 0.98em;
+  color: #8a939d;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  margin-bottom: 0.7em;
+}
+
+.connect-container .checkbox-group label {
+  display: inline-block;
+  margin-right: 18px;
+  margin-top: 7px;
+}
+
+.connect-container .range-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0.5em;
+}
+
+.connect-container .note {
+  font-size: 0.95em;
+  color: #b5b5b5;
+  margin-top: 0.25em;
+}
+
+.connect-container .form-row {
+  margin-bottom: 1.2rem;
+}
+
+.connect-container button[type="submit"] {
+  margin-top: 1.7rem;
+  width: 100%;
+  font-size: 1.1em;
+}
+
+.star-rating {
+  direction: rtl;
+  display: flex;
+  gap: 2px;
+  font-size: clamp(1rem, 3vw, 1rem);
+  /* динамический размер */
+  justify-content: center;
+  user-select: none;
+  padding: 0.2em 0.2em 0.4em 0.2em;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
+  /* всегда в одну строку */
+  overflow-x: auto;
+  /* горизонтальный скролл при необходимости */
+}
+
+.star-rating input {
+  display: none;
+}
+
+.star-rating label {
+  color: #cfd8dc;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating input:checked~label,
+.star-rating label:hover,
+.star-rating label:hover~label {
+  color: #942c6a;
+}
+
+/* Конец стилей для фильтра внутри .connect-container */

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма поиска фильмов и сериалов — Аккордеон (чекбоксы внутри)</title>
+    <!-- Pico.css CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@1.5.10/css/pico.min.css">
+    <style>
+        body {
+            background: #f6f8fa;
+        }
+        main {
+            max-width: 500px;
+            margin: 44px auto;
+        }
+        details {
+            margin-bottom: 1.1rem;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 8px rgba(80,80,120,0.06);
+            padding: 0.5em 0.7em;
+        }
+        summary {
+            font-size: 1.08em;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 0.8em 0.2em 0.8em 0.2em;
+        }
+        .exclude-switch {
+            font-size: 0.98em;
+            color: #8a939d;
+            font-weight: 400;
+            display: flex;
+            align-items: center;
+            gap: 0.3em;
+            margin-bottom: 0.7em;
+        }
+        .checkbox-group label {
+            display: inline-block;
+            margin-right: 18px;
+            margin-top: 7px;
+        }
+        .range-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0.5em;
+        }
+        .note {
+            font-size: 0.95em;
+            color: #b5b5b5;
+            margin-top: 0.25em;
+        }
+        .form-row {
+            margin-bottom: 1.2rem;
+        }
+        button[type="submit"] {
+            margin-top: 1.7rem;
+            width: 100%;
+            font-size: 1.1em;
+        }
+        /* --- Стили для звёздного рейтинга --- */
+        .star-rating {
+            direction: rtl;
+            display: flex;
+            gap: 2px;
+            font-size: 1.5rem;
+            justify-content: flex-start;
+            user-select: none;
+            padding: 0.2em 0.4em 0.4em 0.4em;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+        .star-rating input {
+            display: none;
+        }
+        .star-rating label {
+            color: #cfd8dc;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #FFD700;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <form>
+        <div class="form-row">
+            <label for="type" style="font-weight: 500;">Тип</label>
+            <select id="type" name="type">
+                <option value="movie">Фильм</option>
+                <option value="series">Сериал</option>
+            </select>
+        </div>
+
+        <!-- Секция рейтинга в details -->
+        <details>
+            <summary>Минимальный рейтинг</summary>
+            <div class="star-rating">
+                <input type="radio" id="star10" name="min_rating" value="10"><label for="star10" title="10 звёзд">&#9733;</label>
+                <input type="radio" id="star9" name="min_rating" value="9"><label for="star9" title="9 звёзд">&#9733;</label>
+                <input type="radio" id="star8" name="min_rating" value="8"><label for="star8" title="8 звёзд">&#9733;</label>
+                <input type="radio" id="star7" name="min_rating" value="7"><label for="star7" title="7 звёзд">&#9733;</label>
+                <input type="radio" id="star6" name="min_rating" value="6"><label for="star6" title="6 звёзд">&#9733;</label>
+                <input type="radio" id="star5" name="min_rating" value="5"><label for="star5" title="5 звёзд">&#9733;</label>
+                <input type="radio" id="star4" name="min_rating" value="4"><label for="star4" title="4 звезды">&#9733;</label>
+                <input type="radio" id="star3" name="min_rating" value="3"><label for="star3" title="3 звезды">&#9733;</label>
+                <input type="radio" id="star2" name="min_rating" value="2"><label for="star2" title="2 звезды">&#9733;</label>
+                <input type="radio" id="star1" name="min_rating" value="1" checked><label for="star1" title="1 звезда">&#9733;</label>
+            </div>
+            <div class="note">Выберите минимальный рейтинг от 1 до 10 звёзд</div>
+        </details>
+        <!-- Конец секции рейтинга -->
+
+        <details>
+            <summary>Жанры</summary>
+            <div class="exclude-switch">
+                <input type="checkbox" name="exclude_genres" role="switch"> Исключить выбранные жанры
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="genre" value="thriller"> Триллер</label>
+                <label><input type="checkbox" name="genre" value="horror"> Ужасы</label>
+                <label><input type="checkbox" name="genre" value="action"> Экшн</label>
+            </div>
+        </details>
+        <details>
+            <summary>Год выхода</summary>
+            <div class="range-group">
+                <input type="number" name="year_from" min="1900" max="2025" value="2000" placeholder="от">
+                <span>—</span>
+                <input type="number" name="year_to" min="1900" max="2025" value="2025" placeholder="до">
+            </div>
+            <div class="note">Например, 2010 — 2020</div>
+        </details>
+        <details>
+            <summary>Страны</summary>
+            <div class="exclude-switch">
+                <input type="checkbox" name="exclude_countries" role="switch"> Исключить выбранные страны
+            </div>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="country" value="russia"> Россия</label>
+                <label><input type="checkbox" name="country" value="usa"> США</label>
+                <label><input type="checkbox" name="country" value="france"> Франция</label>
+                <label><input type="checkbox" name="country" value="spain"> Испания</label>
+            </div>
+        </details>
+        <details>
+            <summary>Можно посмотреть на сервисе</summary>
+            <div class="checkbox-group">
+                <label><input type="checkbox" name="service" value="ivi"> Иви</label>
+                <label><input type="checkbox" name="service" value="kinopoisk"> Кинопоиск</label>
+                <label><input type="checkbox" name="service" value="okko"> Окко</label>
+                <label><input type="checkbox" name="service" value="start"> Старт</label>
+            </div>
+        </details>
+        <button type="submit">Найти</button>
+    </form>
+</main>
+</body>
+</html>

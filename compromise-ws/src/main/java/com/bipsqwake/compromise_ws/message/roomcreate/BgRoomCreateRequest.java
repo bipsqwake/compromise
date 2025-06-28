@@ -1,4 +1,4 @@
-package com.bipsqwake.compromise_ws.message;
+package com.bipsqwake.compromise_ws.message.roomcreate;
 
 import java.util.Arrays;
 

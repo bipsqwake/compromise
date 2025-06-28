@@ -17,6 +17,10 @@ export default function QuickRooms() {
         window.location.replace(`/prepare/boardgame`)
     }
 
+    function createMovieRoom() {
+        window.location.replace(`/prepare/movie`)
+    }
+
 
     return (
         <div>
@@ -28,6 +32,7 @@ export default function QuickRooms() {
             <div className="button-group">
                 {/* <a href="#" role="button" className="contrast">Войти</a> */}
                 <a href="#" onClick={createBggRoom} role="button">Настольные игры (BGG и Tesera)</a>
+                <a href="#" onClick={createMovieRoom} role="button">Фильмы и сериалы</a>
                 <a href="#" onClick={createFoodRoom} role="button">Еда</a>
             </div>
         </div>

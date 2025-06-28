@@ -2,6 +2,7 @@ package com.bipsqwake.compromise_ws.service.teseraservice;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -18,9 +19,9 @@ public class TeseraExtractor {
 
     private final RestClient restClient;
 
-    public TeseraExtractor(RestClient.Builder restClientBuilder) {
+    public TeseraExtractor(RestClient.Builder restClientBuilder, @Value("${external.tesera}") String teseraUrl) {
         this.restClient = restClientBuilder
-                .baseUrl("https://api.tesera.ru/v1/")
+                .baseUrl(teseraUrl)
                 .build();
     }
 

@@ -16,6 +16,7 @@ services:
       context: ./compromise-ws
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_API_PROFILES_ACTIVE}
+      SPRING_KP_KEY: ${SPRING_KP_KEY}
     expose:
       - "8081"
     networks:

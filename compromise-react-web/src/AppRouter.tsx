@@ -4,6 +4,7 @@ import './App.css'
 import Room from "./app/routes/Room";
 import BgPrepare from "./app/routes/BgPrepare";
 import QuickRooms from "./app/routes/QuickRooms";
+import MoviePrepare from "./app/routes/MoviePrepare";
 
 export default function AppRouter() {
 
@@ -15,6 +16,7 @@ export default function AppRouter() {
                 <Route path="/quick" element={<QuickRooms />} />
                 <Route path="/rooms/:roomId" element={<Room />} />
                 <Route path="/prepare/boardgame" element={<BgPrepare />} />
+                <Route path="/prepare/movie" element={<MoviePrepare />} />
             </Routes>
         </BrowserRouter>
     );

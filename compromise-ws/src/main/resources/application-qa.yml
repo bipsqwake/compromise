@@ -3,7 +3,8 @@
 #     root: DEBUG
 appconfig:
   allowed-origins-pattern: "http://192.168.0.35:3000"
-eureka:
-  client:
-    service-url:
-      defaultZone: http://compromise-discovery:8761/eureka/
+external:
+  kinopoisk: "https://api.kinopoisk.dev/v1.4/"
+  kinopoiskKey: ${KP_KEY}
+  bgg: "https://boardgamegeek.com/xmlapi2"
+  tesera: "https://api.tesera.ru/v1/" 

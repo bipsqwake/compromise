@@ -16,5 +16,6 @@ USER spring:spring
 EXPOSE 8081
 
 ENV SPRING_PROFILES_ACTIVE=default
+ENV SPRING_KP_KEY=default
 
-ENTRYPOINT ["sh", "-c", "java -jar app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} $@"]
+ENTRYPOINT ["sh", "-c", "java -jar app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE} --external.kinopoiskKey=${SPRING_KP_KEY} $@"]

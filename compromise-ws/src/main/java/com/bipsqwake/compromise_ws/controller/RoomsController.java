@@ -17,14 +17,17 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.bipsqwake.compromise_ws.exception.InvalidInputException;
 import com.bipsqwake.compromise_ws.exception.WebException;
-import com.bipsqwake.compromise_ws.message.BgRoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomCreateRequest;
 import com.bipsqwake.compromise_ws.message.RoomResponse;
+import com.bipsqwake.compromise_ws.message.roomcreate.BgRoomCreateRequest;
+import com.bipsqwake.compromise_ws.message.roomcreate.MovieRoomRequest;
 import com.bipsqwake.compromise_ws.room.Card;
 import com.bipsqwake.compromise_ws.room.Room;
 import com.bipsqwake.compromise_ws.room.RoomStatus;
 import com.bipsqwake.compromise_ws.service.RoomService;
 import com.bipsqwake.compromise_ws.service.bggservice.BggService;
+import com.bipsqwake.compromise_ws.service.kinopoiskservice.KinopoiskQuery;
+import com.bipsqwake.compromise_ws.service.kinopoiskservice.KinopoiskService;
 import com.bipsqwake.compromise_ws.service.teseraservice.TeseraService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -44,6 +47,9 @@ public class RoomsController {
 
     @Autowired
     private TeseraService teseraService;
+
+    @Autowired
+    private KinopoiskService kinopoiskService;
 
     @Value("classpath:/data/food_options.json")
     private Resource restsInput;
@@ -77,6 +83,40 @@ public class RoomsController {
             throw WebException.collectionTooSmall("Collection is too small to start voting");
         }
         Room room = roomService.createRoom(request.name(), cards);
+        return new RoomResponse(room.getId(), room.getName(), room.getState());
+    }
+
+    @PostMapping("/create/movies")
+    public RoomResponse createMovieRoom(@RequestBody MovieRoomRequest movieRoomRequest) throws WebException {
+        log.info(movieRoomRequest.toString());
+        KinopoiskQuery query = new KinopoiskQuery();
+        if (movieRoomRequest.type() != null) {
+            query.mapType(movieRoomRequest.type());
+        }
+        if (movieRoomRequest.genres() != null) {
+            query.mapGenres(movieRoomRequest.genres(), movieRoomRequest.genresExclude());
+        }
+        if (movieRoomRequest.countries() != null) {
+            query.mapCountries(movieRoomRequest.countries(), movieRoomRequest.countriesExclude());
+        }
+        if (movieRoomRequest.services() != null) {
+            query.mapServices(movieRoomRequest.services());
+        } 
+        if (movieRoomRequest.minRating() != null) {
+            query.setMinRating(movieRoomRequest.minRating());
+        }
+        if (movieRoomRequest.yearFrom() != null) {
+            query.setYearFrom(movieRoomRequest.yearFrom());
+        }
+        if (movieRoomRequest.yearTo() != null) {
+            query.setYearTo(movieRoomRequest.yearTo());
+        }
+        List<Card> cards = kinopoiskService.getMovies(query);
+        log.info("Extracted {} cards", cards.size());
+        if (cards.size() <= 2) {
+            throw WebException.collectionTooSmall("Collection is too small to start voting");
+        }
+        Room room = roomService.createRoom(movieRoomRequest.name(), cards);
         return new RoomResponse(room.getId(), room.getName(), room.getState());
     }
 
